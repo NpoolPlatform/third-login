@@ -1,0 +1,10 @@
+{
+	"appId": "89089012783789789719823798127398",
+	"cluster": "development",
+	"namespaceName": "redis-npool-top",
+	"releaseKey": "20220309102411-3f41ebc482929ece",
+	"configurations": {
+		"password": "12345679",
+		"username": "root"
+	}
+}
