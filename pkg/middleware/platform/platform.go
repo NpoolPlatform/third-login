@@ -2,6 +2,7 @@ package platform
 
 import (
 	"context"
+
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	npool "github.com/NpoolPlatform/message/npool/third-login-gateway"
@@ -12,8 +13,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func GetPlatforms(ctx context.Context, in *npool.GetPlatformsByAppRequest) (*npool.GetPlatformsByAppResponse, error) {
-
+func GetPlatformsAuth(ctx context.Context, in *npool.GetPlatformsByAppRequest) (*npool.GetPlatformsByAppResponse, error) {
 	schema, err := crud.New(ctx, nil)
 	if err != nil {
 		logger.Sugar().Errorf("fail create schema entity: %v", err)
@@ -27,30 +27,32 @@ func GetPlatforms(ctx context.Context, in *npool.GetPlatformsByAppRequest) (*npo
 	}
 	var autlList []*npool.Auth
 	for _, val := range infos {
-		conf := &oauth.AuthConfig{ClientId: val.PlatformAppKey, ClientSecret: val.PlatformAppSecret, RedirectUrl: val.RedirectUrl}
+		conf := &oauth.Config{ClientID: val.PlatformAppKey, ClientSecret: val.PlatformAppSecret, RedirectURL: val.RedirectUrl}
 		switch val.GetPlatform() {
 		case constant.PlatformGitHub:
-			githubAuth := oauth.NewAuthGitHub(conf)
-			authUrl, err := githubAuth.GetRedirectUrl()
+			githubAuth := oauth.NewGitHubAuth(conf)
+			authURL, err := githubAuth.GetRedirectURL()
 			if err != nil {
 				return nil, err
 			}
 			autlList = append(autlList, &npool.Auth{
-				AuthUrl: authUrl,
-				LogoUrl: val.LogoUrl,
+				AuthUrl:  authURL,
+				LogoUrl:  val.LogoUrl,
+				Platform: val.Platform,
 			})
-			break
-		case constant.PlatformGooGle:
-			googleAuth := oauth.NewAuthGoogle(conf)
-			authUrl, err := googleAuth.GetRedirectUrl()
-			if err != nil {
-				return nil, err
-			}
-			autlList = append(autlList, &npool.Auth{
-				AuthUrl: authUrl,
-				LogoUrl: val.LogoUrl,
-			})
-			break
+			break //nolint
+			// case constant.PlatformGooGle:
+			//	googleAuth := oauth.NewGoogleAuth(conf)
+			//	authURL, err := googleAuth.GetRedirectURL()
+			//	if err != nil {
+			//		return nil, err
+			//	}
+			//	autlList = append(autlList, &npool.Auth{
+			//		AuthUrl:  authURL,
+			//		LogoUrl:  val.LogoUrl,
+			//		Platform: val.Platform,
+			//	})
+			//	break
 		}
 	}
 	return &npool.GetPlatformsByAppResponse{

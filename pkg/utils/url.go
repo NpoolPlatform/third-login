@@ -8,38 +8,38 @@ import (
 )
 
 // build url with param
-type UrlBuilder struct {
-	baseUrl string
+type URLBuilder struct {
+	baseURL string
 	params  url.Values
 }
 
-func NewUrlBuilder(baseUrl string) *UrlBuilder {
-	uv, err := url.ParseRequestURI(baseUrl)
-	builder := &UrlBuilder{}
+func NewURLBuilder(baseURL string) *URLBuilder {
+	uv, err := url.ParseRequestURI(baseURL)
+	builder := &URLBuilder{}
 	if err != nil {
 		log.Println(err)
 		return builder
 	}
 	urls := strings.SplitN(uv.String(), "?", 2)
-	builder.baseUrl = urls[0]
+	builder.baseURL = urls[0]
 	builder.params = uv.Query()
 	return builder
 }
 
-func (this *UrlBuilder) AddParam(key string, value interface{}) *UrlBuilder {
+func (c *URLBuilder) AddParam(key string, value interface{}) *URLBuilder {
 	if key == "" {
-		return this
+		return c
 	}
-	this.params.Add(key, fmt.Sprint(value))
-	return this
+	c.params.Add(key, fmt.Sprint(value))
+	return c
 }
 
-func (this *UrlBuilder) Build() string {
-	if this.baseUrl == "" {
+func (c *URLBuilder) Build() string {
+	if c.baseURL == "" {
 		return ""
 	}
-	if len(this.params) == 0 {
-		return this.baseUrl
+	if len(c.params) == 0 {
+		return c.baseURL
 	}
-	return this.baseUrl + "?" + this.params.Encode()
+	return c.baseURL + "?" + c.params.Encode()
 }

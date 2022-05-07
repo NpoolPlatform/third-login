@@ -1,31 +1,22 @@
 package auth
 
-//基本配置
-type AuthConfig struct {
-	ClientId     string
+type Config struct {
+	ClientID     string
 	ClientSecret string
-	RedirectUrl  string
+	RedirectURL  string
 }
 
 type BaseRequest struct {
-	authorizeUrl   string
-	TokenUrl       string
-	AccessTokenUrl string
-	RefreshUrl     string
-	userInfoUrl    string
-	config         *AuthConfig
+	authorizeURL string //nolint
+	TokenURL     string
+	userInfoURL  string //nolint
+	config       *Config
 }
 
-func (b *BaseRequest) Set(cfg *AuthConfig) {
+func (b *BaseRequest) Set(cfg *Config) {
 	b.config = cfg
 }
 
 type CodeResult struct {
 	Code int `json:"code"`
-}
-
-type TokenResult struct {
-}
-
-type UserResult struct {
 }

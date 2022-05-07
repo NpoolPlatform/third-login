@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	npool "github.com/NpoolPlatform/message/npool/third-login-gateway"
 	mw "github.com/NpoolPlatform/third-login-gateway/pkg/middleware/platform"
@@ -15,7 +16,7 @@ func (s *Server) GetPlatformsByApp(ctx context.Context, in *npool.GetPlatformsBy
 		logger.Sugar().Errorf("invalid request app id: %v", err)
 		return &npool.GetPlatformsByAppResponse{}, status.Error(codes.Internal, err.Error())
 	}
-	resp, err := mw.GetPlatforms(ctx, in)
+	resp, err := mw.GetPlatformsAuth(ctx, in)
 	if err != nil {
 		logger.Sugar().Errorw("get platforms error: %v", err)
 		return &npool.GetPlatformsByAppResponse{}, status.Error(codes.Internal, "internal server error")

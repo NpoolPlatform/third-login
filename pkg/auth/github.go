@@ -5,26 +5,26 @@ import (
 	"github.com/google/uuid"
 )
 
-type AuthGitHub struct {
+type GitHubAuth struct {
 	BaseRequest
 }
 
-func NewAuthGitHub(conf *AuthConfig) *AuthGitHub {
-	authRequest := &AuthGitHub{}
+func NewGitHubAuth(conf *Config) *GitHubAuth {
+	authRequest := &GitHubAuth{}
 	authRequest.Set(conf)
 
-	authRequest.authorizeUrl = "https://github.com/login/oauth/authorize"
-	authRequest.TokenUrl = "https://github.com/login/oauth/access_token"
-	authRequest.userInfoUrl = "https://api.github.com/user"
+	authRequest.authorizeURL = "https://github.com/login/oauth/authorize"
+	authRequest.TokenURL = "https://github.com/login/oauth/access_token"
+	authRequest.userInfoURL = "https://api.github.com/user"
 
 	return authRequest
 }
 
-func (a *AuthGitHub) GetRedirectUrl() (string, error) {
-	url := utils.NewUrlBuilder(a.authorizeUrl).
+func (a *GitHubAuth) GetRedirectURL() (string, error) {
+	url := utils.NewURLBuilder(a.authorizeURL).
 		AddParam("response_type", "code").
-		AddParam("client_id", a.config.ClientId).
-		AddParam("redirect_uri", a.config.RedirectUrl).
+		AddParam("client_id", a.config.ClientID).
+		AddParam("redirect_uri", a.config.RedirectURL).
 		AddParam("scope", "snsapi_login").
 		AddParam("state", uuid.New().String()).
 		Build()

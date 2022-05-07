@@ -3,13 +3,16 @@ package db
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	"github.com/NpoolPlatform/third-login-gateway/pkg/db/ent"
-	"time"
 
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
 	"github.com/NpoolPlatform/go-service-framework/pkg/mysql"
+
+	// runtime
 	_ "github.com/NpoolPlatform/third-login-gateway/pkg/db/ent/runtime"
 )
 
