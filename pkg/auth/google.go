@@ -22,9 +22,9 @@ func NewAuthGoogle(conf *AuthConfig) *AuthGoogle {
 
 func (a *AuthGoogle) GetRedirectUrl() (string, error) {
 	url := utils.NewUrlBuilder(a.authorizeUrl).
-		AddParam("response_type", "code").
 		AddParam("client_id", a.config.ClientId).
 		AddParam("redirect_uri", a.config.RedirectUrl).
+		AddParam("response_type", "code").
 		AddParam("scope", "snsapi_login").
 		AddParam("state", uuid.New().String()).
 		Build()

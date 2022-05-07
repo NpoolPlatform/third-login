@@ -27,11 +27,22 @@ func GetPlatforms(ctx context.Context, in *npool.GetPlatformsByAppRequest) (*npo
 	}
 	var autlList []*npool.Auth
 	for _, val := range infos {
+		conf := &oauth.AuthConfig{ClientId: val.PlatformAppKey, ClientSecret: val.PlatformAppSecret, RedirectUrl: val.RedirectUrl}
 		switch val.GetPlatform() {
 		case constant.PlatformGitHub:
-			githubConf := &oauth.AuthConfig{ClientId: val.PlatformAppKey, ClientSecret: val.PlatformAppSecret, RedirectUrl: val.RedirectUrl}
-			wxAuth := oauth.NewAuthGitHub(githubConf)
-			authUrl, err := wxAuth.GetRedirectUrl()
+			githubAuth := oauth.NewAuthGitHub(conf)
+			authUrl, err := githubAuth.GetRedirectUrl()
+			if err != nil {
+				return nil, err
+			}
+			autlList = append(autlList, &npool.Auth{
+				AuthUrl: authUrl,
+				LogoUrl: val.LogoUrl,
+			})
+			break
+		case constant.PlatformGooGle:
+			googleAuth := oauth.NewAuthGoogle(conf)
+			authUrl, err := googleAuth.GetRedirectUrl()
 			if err != nil {
 				return nil, err
 			}
