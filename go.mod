@@ -99,6 +99,6 @@ require (
 
 replace google.golang.org/grpc => github.com/grpc/grpc-go v1.41.0
 
-replace github.com/NpoolPlatform/message => ../message
+replace github.com/NpoolPlatform/message => github.com/NpoolPlatform/message v0.0.0-20220507111548-fa1798384c5b
 
 //replace github.com/NpoolPlatform/api-manager => github.com/NpoolPlatform/api-manager v0.0.0-20220422055311-0248bddd2c9e
