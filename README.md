@@ -1,6 +1,6 @@
 # Npool go service app template
 
-[![Test](https://github.com/NpoolPlatform/notification/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/NpoolPlatform/notification/actions/workflows/main.yml)
+[![Test](https://github.com/NpoolPlatform/third-login-gateway/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/NpoolPlatform/third-login-gateway/actions/workflows/main.yml)
 
 [目录](#目录)
 - [功能](#功能)
@@ -23,8 +23,8 @@
 * make verify-build ```编译目标```
 * make test ```单元测试```
 * make generate-docker-images ```生成docker镜像```
-* make notification ```单独编译服务```
-* make notification-image ```单独生成服务镜像```
+* make third-login-gateway ```单独编译服务```
+* make third-login-gateway-image ```单独生成服务镜像```
 * make deploy-to-k8s-cluster ```部署到k8s集群```
 
 ### 最佳实践

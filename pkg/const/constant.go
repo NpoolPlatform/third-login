@@ -1,15 +1,13 @@
 package constant
 
+type PlatformField string
+
 const (
-	MessageTemplate = "{{ MESSAGE }}"
-	NameTemplate    = "{{ NAME }}"
+	FieldID            = "ID"
+	PlatformFieldAppID = "AppID"
 )
 
 const (
-	UsedForKycReviewApprovedNotification             = "KycReviewApprovedNotification"
-	UsedForKycReviewRejectedNotification             = "KycReviewRejectedNotification"
-	UsedForWithdrawReviewApprovedNotification        = "WithdrawReviewApprovedNotification"
-	UsedForWithdrawReviewRejectedNotification        = "WithdrawReviewRejectedNotification"
-	UsedForWithdrawAddressReviewApprovedNotification = "WithdrawAddressReviewApprovedNotification"
-	UsedForWithdrawAddressReviewRejectedNotification = "WithdrawAddressReviewRejectedNotification"
+	PlatformGitHub = "github"
+	PlatformGooGle = "google"
 )

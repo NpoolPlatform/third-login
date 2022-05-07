@@ -2,8 +2,8 @@ package listener
 
 import (
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
-	msgcli "github.com/NpoolPlatform/notification/pkg/message/client"
-	msg "github.com/NpoolPlatform/notification/pkg/message/message"
+	msgcli "github.com/NpoolPlatform/third-login-gateway/pkg/message/client"
+	msg "github.com/NpoolPlatform/third-login-gateway/pkg/message/message"
 )
 
 func listenTemplateExample() {

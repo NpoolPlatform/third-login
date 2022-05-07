@@ -1,9 +1,0 @@
-{
-	"appId": "89089012783789789719823798127398",
-	"cluster": "development",
-	"namespaceName": "notification-npool-top",
-	"releaseKey": "20220310183648-d9fb0b08853dd6c1",
-	"configurations": {
-		"database_name": "test"
-	}
-}

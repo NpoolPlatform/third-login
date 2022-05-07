@@ -53,8 +53,11 @@ verify-spelling: ## Verifies spelling.
 	${REPO_ROOT}/hack/verify-spelling.sh
 
 gen-ent:
-	go get entgo.io/ent/cmd/ent
-	go run entgo.io/ent/cmd/ent generate --feature sql/upsert ./pkg/db/ent/schema
+	go get -d entgo.io/ent/cmd/ent@latest
+	go install entgo.io/ent/cmd/ent@latest
+	go get -d github.com/google/uuid@v1.3.0
+	go get -d github.com/NpoolPlatform/libent-cruder
+	go run -mod=mod entgo.io/ent/cmd/ent generate --feature entql,sql/lock,sql/execquery,sql/upsert,privacy,schema/snapshot ./pkg/db/ent/schema
 
 all: verify-build
 

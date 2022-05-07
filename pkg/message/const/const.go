@@ -1,5 +1,5 @@
 package constant
 
 const (
-	ServiceName = "notification.npool.top" //nolint
+	ServiceName = "third-login-gateway.npool.top" //nolint
 )
