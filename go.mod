@@ -5,9 +5,11 @@ go 1.17
 require (
 	entgo.io/ent v0.10.1
 	github.com/NpoolPlatform/api-manager v0.0.0-20220505084652-c0caff45e937
+	github.com/NpoolPlatform/appuser-manager v0.0.0-20220503155754-feb61d1897e0
 	github.com/NpoolPlatform/go-service-framework v0.0.0-20220404143809-82c40930388a
 	github.com/NpoolPlatform/libent-cruder v0.0.0-20220503164840-0962cb617722
 	github.com/NpoolPlatform/message v0.0.0-20220503165256-540362bedc23
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/google/uuid v1.3.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.10.0
@@ -84,7 +86,7 @@ require (
 	go.uber.org/multierr v1.7.0 // indirect
 	go.uber.org/ratelimit v0.1.0 // indirect
 	go.uber.org/zap v1.19.1 // indirect
-	golang.org/x/mod v0.5.1 // indirect
+	golang.org/x/mod v0.6.0-dev.0.20220106191415-9b9b3d81d5e3 // indirect
 	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd // indirect
 	golang.org/x/sys v0.0.0-20220114195835-da31bd327af9 // indirect
 	golang.org/x/text v0.3.7 // indirect
@@ -99,6 +101,8 @@ require (
 
 replace google.golang.org/grpc => github.com/grpc/grpc-go v1.41.0
 
-replace github.com/NpoolPlatform/message => github.com/NpoolPlatform/message v0.0.0-20220507111548-fa1798384c5b
+replace github.com/NpoolPlatform/message => ../message
+
+replace github.com/NpoolPlatform/appuser-manager => ../appuser-manager
 
 //replace github.com/NpoolPlatform/api-manager => github.com/NpoolPlatform/api-manager v0.0.0-20220422055311-0248bddd2c9e

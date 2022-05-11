@@ -34,7 +34,7 @@ func (s *Platform) rowToObject(row *ent.Platform) *npool.Platform {
 		AppID:             row.AppID.String(),
 		Platform:          row.Platform,
 		PlatformAppKey:    row.PlatformAppKey,
-		PlatformAppSecret: row.PlatformAppKey,
+		PlatformAppSecret: row.PlatformAppSecret,
 		LogoUrl:           row.LogoURL,
 		RedirectUrl:       row.RedirectURL,
 	}
@@ -97,7 +97,7 @@ func (s *Platform) Rows(ctx context.Context, conds cruder.Conds, offset, limit i
 			return fmt.Errorf("fail count platform: %v", err)
 		}
 
-		rows, err = stm.Where().Offset(offset).Limit(limit).All(_ctx)
+		rows, err = stm.Offset(offset).Limit(limit).All(_ctx)
 		if err != nil {
 			return fmt.Errorf("fail query platform: %v", err)
 		}
@@ -127,11 +127,17 @@ func (s *Platform) queryFromConds(conds cruder.Conds) (*ent.PlatformQuery, error
 			}
 			stm = stm.Where(platform.ID(id))
 		case constant.PlatformFieldAppID:
-			id, err := cruder.AnyTypeUUID(v.Val)
+			val, err := cruder.AnyTypeUUID(v.Val)
 			if err != nil {
-				return nil, fmt.Errorf("invalid app id: %v", err)
+				return nil, fmt.Errorf("invalid value type: %v", err)
 			}
-			stm = stm.Where(platform.AppID(id))
+			stm = stm.Where(platform.AppID(val))
+		case constant.PlatformFieldPlatform:
+			val, err := cruder.AnyTypeString(v.Val)
+			if err != nil {
+				return nil, fmt.Errorf("invalid value type: %v", err)
+			}
+			stm = stm.Where(platform.Platform(val))
 		default:
 			return nil, fmt.Errorf("invalid platform field")
 		}

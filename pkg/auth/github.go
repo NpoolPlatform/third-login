@@ -1,7 +1,11 @@
 package auth
 
 import (
-	"github.com/NpoolPlatform/third-login-gateway/pkg/utils"
+	"encoding/json"
+	"errors"
+
+	appusermgrpb "github.com/NpoolPlatform/message/npool/appusermgr"
+	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
 )
 
@@ -21,7 +25,7 @@ func NewGitHubAuth(conf *Config) *GitHubAuth {
 }
 
 func (a *GitHubAuth) GetRedirectURL() (string, error) {
-	url := utils.NewURLBuilder(a.authorizeURL).
+	url := NewURLBuilder(a.authorizeURL).
 		AddParam("response_type", "code").
 		AddParam("client_id", a.config.ClientID).
 		AddParam("redirect_uri", a.config.RedirectURL).
@@ -29,4 +33,60 @@ func (a *GitHubAuth) GetRedirectURL() (string, error) {
 		AddParam("state", uuid.New().String()).
 		Build()
 	return url, nil
+}
+
+func (a *GitHubAuth) GetAccessToken(code string) (string, error) {
+	url := NewURLBuilder(a.TokenURL).
+		AddParam("client_id", a.config.ClientID).
+		AddParam("client_secret", a.config.ClientSecret).
+		AddParam("code", code).
+		Build()
+	client := resty.New()
+	client.SetProxy("http://192.168.31.135:7890") // update to ENV
+	resp, err := client.R().
+		SetHeader("Accept", "application/json").
+		Post(url)
+	if err != nil {
+		return "", err
+	}
+	m := make(map[string]interface{})
+	err = json.Unmarshal(resp.Body(), &m)
+	if err != nil {
+		return "", err
+	}
+	if _, ok := m["error"]; ok {
+		return "", errors.New(m["error_description"].(string))
+	}
+	return m["access_token"].(string), err
+}
+
+func (a *GitHubAuth) GetUserInfo(code string) (*appusermgrpb.AppUserThird, error) {
+	token, err := a.GetAccessToken(code)
+	if err != nil {
+		return &appusermgrpb.AppUserThird{}, err
+	}
+	url := a.userInfoURL
+
+	client := resty.New()
+	client.SetProxy("http://192.168.31.135:7890") // update to ENV
+	resp, err := client.R().
+		SetHeader("Authorization", "token "+token).
+		Get(url)
+	if err != nil {
+		return &appusermgrpb.AppUserThird{}, err
+	}
+	m := make(map[string]interface{})
+	err = json.Unmarshal(resp.Body(), &m)
+	if err != nil {
+		return &appusermgrpb.AppUserThird{}, err
+	}
+	if _, ok := m["error"]; ok {
+		return &appusermgrpb.AppUserThird{}, errors.New(m["error_description"].(string))
+	}
+	return &appusermgrpb.AppUserThird{
+		ThirdUserId:      m["id"].(string),
+		ThirdUserName:    m["login"].(string),
+		ThirdUserPicture: m["avatar_url"].(string),
+		ThirdExtra:       string(resp.Body()),
+	}, nil
 }

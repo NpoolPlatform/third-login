@@ -3,6 +3,7 @@ package platform
 import (
 	"context"
 
+	appusermgrconst "github.com/NpoolPlatform/appuser-manager/pkg/const"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	npool "github.com/NpoolPlatform/message/npool/third-login-gateway"
@@ -25,11 +26,12 @@ func GetPlatformsAuth(ctx context.Context, in *npool.GetPlatformsByAppRequest) (
 		logger.Sugar().Errorf("fail platform stocks: %v", err)
 		return &npool.GetPlatformsByAppResponse{}, status.Error(codes.Internal, err.Error())
 	}
+
 	var autlList []*npool.Auth
 	for _, val := range infos {
 		conf := &oauth.Config{ClientID: val.PlatformAppKey, ClientSecret: val.PlatformAppSecret, RedirectURL: val.RedirectUrl}
 		switch val.GetPlatform() {
-		case constant.PlatformGitHub:
+		case appusermgrconst.ThirdGithub:
 			githubAuth := oauth.NewGitHubAuth(conf)
 			authURL, err := githubAuth.GetRedirectURL()
 			if err != nil {
@@ -41,18 +43,18 @@ func GetPlatformsAuth(ctx context.Context, in *npool.GetPlatformsByAppRequest) (
 				Platform: val.Platform,
 			})
 			break //nolint
-			// case constant.PlatformGooGle:
-			//	googleAuth := oauth.NewGoogleAuth(conf)
-			//	authURL, err := googleAuth.GetRedirectURL()
-			//	if err != nil {
-			//		return nil, err
-			//	}
-			//	autlList = append(autlList, &npool.Auth{
-			//		AuthUrl:  authURL,
-			//		LogoUrl:  val.LogoUrl,
-			//		Platform: val.Platform,
-			//	})
-			//	break
+		case appusermgrconst.ThirdGoogle:
+			googleAuth := oauth.NewGoogleAuth(conf)
+			authURL, err := googleAuth.GetRedirectURL()
+			if err != nil {
+				return nil, err
+			}
+			autlList = append(autlList, &npool.Auth{
+				AuthUrl:  authURL,
+				LogoUrl:  val.LogoUrl,
+				Platform: val.Platform,
+			})
+			break //nolint
 		}
 	}
 	return &npool.GetPlatformsByAppResponse{
