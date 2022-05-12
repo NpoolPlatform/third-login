@@ -42,8 +42,9 @@ func (a *GoogleAuth) GetAccessToken(ctx context.Context, code string) (string, e
 		AddParam("client_secret", a.config.ClientSecret).
 		AddParam("grant_type", "authorization_code").
 		AddParam("redirect_uri", a.config.RedirectURL).
-		AddParam("code", code).
 		Build()
+	// google redirect code is url encode,addParam will cause duplication url encode
+	url = url + "&code=" + code
 	client := resty.New()
 	client.SetProxy("http://192.168.31.135:7890") // update to ENV
 	resp, err := client.R().
@@ -81,18 +82,15 @@ func (a *GoogleAuth) GetUserInfo(ctx context.Context, code string) (*appusermgrp
 	if err != nil {
 		return &appusermgrpb.AppUserThird{}, err
 	}
-	m := make(map[string]interface{})
-	err = json.Unmarshal(resp.Body(), &m)
-	if err != nil {
-		return &appusermgrpb.AppUserThird{}, err
-	}
+
+	m := JsonToMSS(string(resp.Body()))
 	if _, ok := m["error"]; ok {
-		return &appusermgrpb.AppUserThird{}, errors.New(m["error_description"].(string))
+		return &appusermgrpb.AppUserThird{}, errors.New(m["error_description"])
 	}
 	return &appusermgrpb.AppUserThird{
-		ThirdUserId:      m["id"].(string),
-		ThirdUserName:    m["email"].(string),
-		ThirdUserPicture: m["picture"].(string),
+		ThirdUserId:      m["id"],
+		ThirdUserName:    m["email"],
+		ThirdUserPicture: m["picture"],
 		ThirdExtra:       string(resp.Body()),
 	}, nil
 }

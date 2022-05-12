@@ -79,18 +79,14 @@ func (a *GitHubAuth) GetUserInfo(ctx context.Context, code string) (*appusermgrp
 	if err != nil {
 		return &appusermgrpb.AppUserThird{}, err
 	}
-	m := make(map[string]interface{})
-	err = json.Unmarshal(resp.Body(), &m)
-	if err != nil {
-		return &appusermgrpb.AppUserThird{}, err
-	}
+	m := JsonToMSS(string(resp.Body()))
 	if _, ok := m["error"]; ok {
-		return &appusermgrpb.AppUserThird{}, errors.New(m["error_description"].(string))
+		return &appusermgrpb.AppUserThird{}, errors.New(m["error_description"])
 	}
 	return &appusermgrpb.AppUserThird{
-		ThirdUserId:      m["id"].(string),
-		ThirdUserName:    m["login"].(string),
-		ThirdUserPicture: m["avatar_url"].(string),
+		ThirdUserId:      m["id"],
+		ThirdUserName:    m["login"],
+		ThirdUserPicture: m["avatar_url"],
 		ThirdExtra:       string(resp.Body()),
 	}, nil
 }

@@ -41,7 +41,7 @@ func AuthLogin(ctx context.Context, in *npool.AuthLoginRequest) (*npool.AuthLogi
 	switch in.GetPlatform() {
 	case appusermgrconst.ThirdGithub:
 		githubAuth := oauth.NewGitHubAuth(conf)
-		thirdUser, err := githubAuth.GetUserInfo(in.Code)
+		thirdUser, err := githubAuth.GetUserInfo(ctx, in.Code)
 		if err != nil {
 			return &npool.AuthLoginResponse{}, err
 		}
@@ -51,7 +51,7 @@ func AuthLogin(ctx context.Context, in *npool.AuthLoginRequest) (*npool.AuthLogi
 		return Login(ctx, thirdUser)
 	case appusermgrconst.ThirdGoogle:
 		googleAuth := oauth.NewGoogleAuth(conf)
-		thirdUser, err := googleAuth.GetUserInfo(in.Code)
+		thirdUser, err := googleAuth.GetUserInfo(ctx, in.Code)
 		if err != nil {
 			return &npool.AuthLoginResponse{}, err
 		}
