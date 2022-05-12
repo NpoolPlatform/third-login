@@ -62,7 +62,10 @@ func (meta *Metadata) ToJWTClaims() jwt.MapClaims {
 }
 
 func createToken(meta *Metadata) (string, error) {
-	tokenAccessSecret := os.Getenv("LOGIN_TOKEN_ACCESS_SECRET") // set to common-secret
+	tokenAccessSecret, ok := os.LookupEnv("LOGIN_TOKEN_ACCESS_SECRET") // set to common-secret
+	if !ok {
+		// TODO
+	}
 	if tokenAccessSecret == "" {
 		return "", fmt.Errorf("invalid login token access secret")
 	}

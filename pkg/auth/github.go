@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 
@@ -35,7 +36,7 @@ func (a *GitHubAuth) GetRedirectURL() (string, error) {
 	return url, nil
 }
 
-func (a *GitHubAuth) GetAccessToken(code string) (string, error) {
+func (a *GitHubAuth) GetAccessToken(ctx context.Context, code string) (string, error) {
 	url := NewURLBuilder(a.TokenURL).
 		AddParam("client_id", a.config.ClientID).
 		AddParam("client_secret", a.config.ClientSecret).
@@ -44,6 +45,7 @@ func (a *GitHubAuth) GetAccessToken(code string) (string, error) {
 	client := resty.New()
 	client.SetProxy("http://192.168.31.135:7890") // update to ENV
 	resp, err := client.R().
+		SetContext(ctx).
 		SetHeader("Accept", "application/json").
 		Post(url)
 	if err != nil {
@@ -60,8 +62,8 @@ func (a *GitHubAuth) GetAccessToken(code string) (string, error) {
 	return m["access_token"].(string), err
 }
 
-func (a *GitHubAuth) GetUserInfo(code string) (*appusermgrpb.AppUserThird, error) {
-	token, err := a.GetAccessToken(code)
+func (a *GitHubAuth) GetUserInfo(ctx context.Context, code string) (*appusermgrpb.AppUserThird, error) {
+	token, err := a.GetAccessToken(ctx, code)
 	if err != nil {
 		return &appusermgrpb.AppUserThird{}, err
 	}
@@ -70,7 +72,9 @@ func (a *GitHubAuth) GetUserInfo(code string) (*appusermgrpb.AppUserThird, error
 	client := resty.New()
 	client.SetProxy("http://192.168.31.135:7890") // update to ENV
 	resp, err := client.R().
-		SetHeader("Authorization", "token "+token).
+		SetContext(ctx).
+		// batter is use Bearer
+		SetAuthToken(token).
 		Get(url)
 	if err != nil {
 		return &appusermgrpb.AppUserThird{}, err

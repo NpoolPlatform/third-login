@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 
@@ -35,17 +36,18 @@ func (a *GoogleAuth) GetRedirectURL() (string, error) {
 	return url, nil
 }
 
-func (a *GoogleAuth) GetAccessToken(code string) (string, error) {
+func (a *GoogleAuth) GetAccessToken(ctx context.Context, code string) (string, error) {
 	url := NewURLBuilder(a.TokenURL).
 		AddParam("client_id", a.config.ClientID).
 		AddParam("client_secret", a.config.ClientSecret).
 		AddParam("grant_type", "authorization_code").
 		AddParam("redirect_uri", a.config.RedirectURL).
+		AddParam("code", code).
 		Build()
-	url = url + "&code=" + code
 	client := resty.New()
 	client.SetProxy("http://192.168.31.135:7890") // update to ENV
 	resp, err := client.R().
+		SetContext(ctx).
 		SetHeader("Content-Type", "application/json").
 		Post(url)
 	if err != nil {
@@ -63,8 +65,8 @@ func (a *GoogleAuth) GetAccessToken(code string) (string, error) {
 	return m["access_token"].(string), err
 }
 
-func (a *GoogleAuth) GetUserInfo(code string) (*appusermgrpb.AppUserThird, error) {
-	token, err := a.GetAccessToken(code)
+func (a *GoogleAuth) GetUserInfo(ctx context.Context, code string) (*appusermgrpb.AppUserThird, error) {
+	token, err := a.GetAccessToken(ctx, code)
 	if err != nil {
 		return &appusermgrpb.AppUserThird{}, err
 	}
@@ -72,8 +74,9 @@ func (a *GoogleAuth) GetUserInfo(code string) (*appusermgrpb.AppUserThird, error
 	client := resty.New()
 	client.SetProxy("http://192.168.31.135:7890") // update to ENV
 	resp, err := client.R().
+		SetContext(ctx).
 		SetHeader("Content-Type", "application/json").
-		SetHeader("Authorization", "Bearer "+token).
+		SetAuthToken(token).
 		Get(url)
 	if err != nil {
 		return &appusermgrpb.AppUserThird{}, err

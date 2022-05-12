@@ -28,6 +28,7 @@ func GetPlatformsAuth(ctx context.Context, in *npool.GetPlatformsByAppRequest) (
 	}
 
 	var autlList []*npool.Auth
+match:
 	for _, val := range infos {
 		conf := &oauth.Config{ClientID: val.PlatformAppKey, ClientSecret: val.PlatformAppSecret, RedirectURL: val.RedirectUrl}
 		switch val.GetPlatform() {
@@ -42,7 +43,7 @@ func GetPlatformsAuth(ctx context.Context, in *npool.GetPlatformsByAppRequest) (
 				LogoUrl:  val.LogoUrl,
 				Platform: val.Platform,
 			})
-			break //nolint
+			break match
 		case appusermgrconst.ThirdGoogle:
 			googleAuth := oauth.NewGoogleAuth(conf)
 			authURL, err := googleAuth.GetRedirectURL()
@@ -54,7 +55,7 @@ func GetPlatformsAuth(ctx context.Context, in *npool.GetPlatformsByAppRequest) (
 				LogoUrl:  val.LogoUrl,
 				Platform: val.Platform,
 			})
-			break //nolint
+			break match
 		}
 	}
 	return &npool.GetPlatformsByAppResponse{

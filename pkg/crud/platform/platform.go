@@ -97,7 +97,11 @@ func (s *Platform) Rows(ctx context.Context, conds cruder.Conds, offset, limit i
 			return fmt.Errorf("fail count platform: %v", err)
 		}
 
-		rows, err = stm.Offset(offset).Limit(limit).All(_ctx)
+		rows, err = stm.
+			Offset(offset).
+			Order(ent.Desc("updated_at")).
+			Limit(limit).
+			All(_ctx)
 		if err != nil {
 			return fmt.Errorf("fail query platform: %v", err)
 		}
