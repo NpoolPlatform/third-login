@@ -4,42 +4,33 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-
 	appusermgrpb "github.com/NpoolPlatform/message/npool/appusermgr"
 	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
 )
 
+var githubAuthorizeURL = "https://github.com/login/oauth/authorize"
+var githubTokenURL = "https://github.com/login/oauth/access_token"
+var githubUserInfoURL = "https://api.github.com/user"
+
 type GitHubAuth struct {
-	BaseRequest
 }
 
-func NewGitHubAuth(conf *Config) *GitHubAuth {
-	authRequest := &GitHubAuth{}
-	authRequest.Set(conf)
-
-	authRequest.authorizeURL = "https://github.com/login/oauth/authorize"
-	authRequest.TokenURL = "https://github.com/login/oauth/access_token"
-	authRequest.userInfoURL = "https://api.github.com/user"
-
-	return authRequest
-}
-
-func (a *GitHubAuth) GetRedirectURL() (string, error) {
-	url := NewURLBuilder(a.authorizeURL).
+func (a *GitHubAuth) GetRedirectURL(config *Config) (string, error) {
+	url := NewURLBuilder(githubAuthorizeURL).
 		AddParam("response_type", "code").
-		AddParam("client_id", a.config.ClientID).
-		AddParam("redirect_uri", a.config.RedirectURL).
+		AddParam("client_id", config.ClientID).
+		AddParam("redirect_uri", config.RedirectURL).
 		AddParam("scope", "snsapi_login").
 		AddParam("state", uuid.New().String()).
 		Build()
 	return url, nil
 }
 
-func (a *GitHubAuth) GetAccessToken(ctx context.Context, code string) (string, error) {
-	url := NewURLBuilder(a.TokenURL).
-		AddParam("client_id", a.config.ClientID).
-		AddParam("client_secret", a.config.ClientSecret).
+func (a *GitHubAuth) GetAccessToken(ctx context.Context, code string, config *Config) (string, error) {
+	url := NewURLBuilder(githubTokenURL).
+		AddParam("client_id", config.ClientID).
+		AddParam("client_secret", config.ClientSecret).
 		AddParam("code", code).
 		Build()
 	client := resty.New()
@@ -62,12 +53,12 @@ func (a *GitHubAuth) GetAccessToken(ctx context.Context, code string) (string, e
 	return m["access_token"].(string), err
 }
 
-func (a *GitHubAuth) GetUserInfo(ctx context.Context, code string) (*appusermgrpb.AppUserThird, error) {
-	token, err := a.GetAccessToken(ctx, code)
+func (a *GitHubAuth) GetUserInfo(ctx context.Context, code string, config *Config) (*appusermgrpb.AppUserThird, error) {
+	token, err := a.GetAccessToken(ctx, code, config)
 	if err != nil {
 		return &appusermgrpb.AppUserThird{}, err
 	}
-	url := a.userInfoURL
+	url := githubUserInfoURL
 
 	client := resty.New()
 	client.SetProxy("http://192.168.31.135:7890") // update to ENV
@@ -79,7 +70,10 @@ func (a *GitHubAuth) GetUserInfo(ctx context.Context, code string) (*appusermgrp
 	if err != nil {
 		return &appusermgrpb.AppUserThird{}, err
 	}
-	m := JsonToMSS(string(resp.Body()))
+	m, err := JsonToMSS(string(resp.Body()))
+	if err != nil {
+		return nil, err
+	}
 	if _, ok := m["error"]; ok {
 		return &appusermgrpb.AppUserThird{}, errors.New(m["error_description"])
 	}

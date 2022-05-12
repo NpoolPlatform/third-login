@@ -11,24 +11,16 @@ import (
 )
 
 type GoogleAuth struct {
-	BaseRequest
 }
 
-func NewGoogleAuth(conf *Config) *GoogleAuth {
-	authRequest := &GoogleAuth{}
-	authRequest.Set(conf)
+var googleAuthorizeURL = "https://accounts.google.com/o/oauth2/v2/auth"
+var googleTokenURL = "https://oauth2.googleapis.com/token"
+var googleUserInfoURL = "https://www.googleapis.com/oauth2/v2/userinfo"
 
-	authRequest.authorizeURL = "https://accounts.google.com/o/oauth2/v2/auth"
-	authRequest.TokenURL = "https://oauth2.googleapis.com/token"
-	authRequest.userInfoURL = "https://www.googleapis.com/oauth2/v2/userinfo"
-
-	return authRequest
-}
-
-func (a *GoogleAuth) GetRedirectURL() (string, error) {
-	url := NewURLBuilder(a.authorizeURL).
-		AddParam("client_id", a.config.ClientID).
-		AddParam("redirect_uri", a.config.RedirectURL).
+func (a *GoogleAuth) GetRedirectURL(config *Config) (string, error) {
+	url := NewURLBuilder(googleAuthorizeURL).
+		AddParam("client_id", config.ClientID).
+		AddParam("redirect_uri", config.RedirectURL).
 		AddParam("response_type", "code").
 		AddParam("scope", "https://www.googleapis.com/auth/userinfo.email").
 		AddParam("state", uuid.New().String()).
@@ -36,12 +28,12 @@ func (a *GoogleAuth) GetRedirectURL() (string, error) {
 	return url, nil
 }
 
-func (a *GoogleAuth) GetAccessToken(ctx context.Context, code string) (string, error) {
-	url := NewURLBuilder(a.TokenURL).
-		AddParam("client_id", a.config.ClientID).
-		AddParam("client_secret", a.config.ClientSecret).
+func (a *GoogleAuth) GetAccessToken(ctx context.Context, code string, config *Config) (string, error) {
+	url := NewURLBuilder(googleTokenURL).
+		AddParam("client_id", config.ClientID).
+		AddParam("client_secret", config.ClientSecret).
 		AddParam("grant_type", "authorization_code").
-		AddParam("redirect_uri", a.config.RedirectURL).
+		AddParam("redirect_uri", config.RedirectURL).
 		Build()
 	// google redirect code is url encode,addParam will cause duplication url encode
 	url = url + "&code=" + code
@@ -66,12 +58,12 @@ func (a *GoogleAuth) GetAccessToken(ctx context.Context, code string) (string, e
 	return m["access_token"].(string), err
 }
 
-func (a *GoogleAuth) GetUserInfo(ctx context.Context, code string) (*appusermgrpb.AppUserThird, error) {
-	token, err := a.GetAccessToken(ctx, code)
+func (a *GoogleAuth) GetUserInfo(ctx context.Context, code string, config *Config) (*appusermgrpb.AppUserThird, error) {
+	token, err := a.GetAccessToken(ctx, code, config)
 	if err != nil {
 		return &appusermgrpb.AppUserThird{}, err
 	}
-	url := a.userInfoURL
+	url := googleUserInfoURL
 	client := resty.New()
 	client.SetProxy("http://192.168.31.135:7890") // update to ENV
 	resp, err := client.R().
@@ -83,7 +75,10 @@ func (a *GoogleAuth) GetUserInfo(ctx context.Context, code string) (*appusermgrp
 		return &appusermgrpb.AppUserThird{}, err
 	}
 
-	m := JsonToMSS(string(resp.Body()))
+	m, err := JsonToMSS(string(resp.Body()))
+	if err != nil {
+		return nil, err
+	}
 	if _, ok := m["error"]; ok {
 		return &appusermgrpb.AppUserThird{}, errors.New(m["error_description"])
 	}

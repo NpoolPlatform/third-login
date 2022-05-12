@@ -2,8 +2,8 @@ package platform
 
 import (
 	"context"
+	"fmt"
 
-	appusermgrconst "github.com/NpoolPlatform/appuser-manager/pkg/const"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	npool "github.com/NpoolPlatform/message/npool/third-login-gateway"
@@ -28,35 +28,23 @@ func GetPlatformsAuth(ctx context.Context, in *npool.GetPlatformsByAppRequest) (
 	}
 
 	var autlList []*npool.Auth
-match:
+
 	for _, val := range infos {
 		conf := &oauth.Config{ClientID: val.PlatformAppKey, ClientSecret: val.PlatformAppSecret, RedirectURL: val.RedirectUrl}
-		switch val.GetPlatform() {
-		case appusermgrconst.ThirdGithub:
-			githubAuth := oauth.NewGitHubAuth(conf)
-			authURL, err := githubAuth.GetRedirectURL()
-			if err != nil {
-				return nil, err
-			}
-			autlList = append(autlList, &npool.Auth{
-				AuthUrl:  authURL,
-				LogoUrl:  val.LogoUrl,
-				Platform: val.Platform,
-			})
-			break match
-		case appusermgrconst.ThirdGoogle:
-			googleAuth := oauth.NewGoogleAuth(conf)
-			authURL, err := googleAuth.GetRedirectURL()
-			if err != nil {
-				return nil, err
-			}
-			autlList = append(autlList, &npool.Auth{
-				AuthUrl:  authURL,
-				LogoUrl:  val.LogoUrl,
-				Platform: val.Platform,
-			})
-			break match
+		platform, ok := oauth.ThirdMap[val.GetPlatform()]
+		if !ok {
+			return &npool.GetPlatformsByAppResponse{}, fmt.Errorf("login method does not exist")
 		}
+		thirdMethod := oauth.NewContext(platform)
+		url, err := thirdMethod.GetRedirectURL(conf)
+		if err != nil {
+			return &npool.GetPlatformsByAppResponse{}, err
+		}
+		autlList = append(autlList, &npool.Auth{
+			AuthUrl:  url,
+			LogoUrl:  val.LogoUrl,
+			Platform: val.Platform,
+		})
 	}
 	return &npool.GetPlatformsByAppResponse{
 		Infos: autlList,

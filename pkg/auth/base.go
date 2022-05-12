@@ -1,10 +1,11 @@
 package auth
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-	"reflect"
-	"strconv"
+	appusermgrconst "github.com/NpoolPlatform/appuser-manager/pkg/const"
+	appusermgrpb "github.com/NpoolPlatform/message/npool/appusermgr"
 )
 
 type Config struct {
@@ -13,55 +14,40 @@ type Config struct {
 	RedirectURL  string
 }
 
-type BaseRequest struct {
-	authorizeURL string //nolint
-	TokenURL     string
-	userInfoURL  string //nolint
-	config       *Config
+var ThirdMap = make(map[string]ThirdMethod)
+
+func init() {
+	ThirdMap[appusermgrconst.ThirdGithub] = &GitHubAuth{}
+	ThirdMap[appusermgrconst.ThirdGoogle] = &GoogleAuth{}
 }
 
-func (b *BaseRequest) Set(cfg *Config) {
-	b.config = cfg
+type ThirdMethod interface {
+	GetUserInfo(ctx context.Context, code string, config *Config) (*appusermgrpb.AppUserThird, error)
+	GetRedirectURL(config *Config) (string, error)
 }
 
-type CodeResult struct {
-	Code int `json:"code"`
+type Context struct {
+	ThirdMethod
 }
 
-func JsonToMSS(s string) map[string]string {
+func NewContext(thirdMethod ThirdMethod) *Context {
+	return &Context{
+		thirdMethod,
+	}
+}
+
+func JsonToMSS(s string) (map[string]string, error) {
 	if s == "" {
-		return nil
+		return nil, fmt.Errorf("map empty")
 	}
 	msi := make(map[string]interface{})
 	err := json.Unmarshal([]byte(s), &msi)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 	mss := make(map[string]string)
 	for k, v := range msi {
-		mss[k] = convertAnyToStr(v)
+		mss[k] = fmt.Sprintf("%v", v)
 	}
-	return mss
-}
-
-func convertAnyToStr(v interface{}) string {
-	if v == nil {
-		return ""
-	}
-	switch d := v.(type) {
-	case string:
-		return d
-	case int, int8, int16, int32, int64:
-		return strconv.FormatInt(reflect.ValueOf(v).Int(), 10)
-	case uint, uint8, uint16, uint32, uint64:
-		return strconv.FormatUint(reflect.ValueOf(v).Uint(), 10)
-	case []byte:
-		return string(d)
-	case float32, float64:
-		return strconv.FormatFloat(reflect.ValueOf(v).Float(), 'f', -1, 64)
-	case bool:
-		return strconv.FormatBool(d)
-	default:
-		return fmt.Sprint(v)
-	}
+	return mss, nil
 }

@@ -14,7 +14,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	appusermgrconst "github.com/NpoolPlatform/appuser-manager/pkg/const"
 	appusermgrpb "github.com/NpoolPlatform/message/npool/appusermgr"
 	grpc2 "github.com/NpoolPlatform/third-login-gateway/pkg/grpc"
 )
@@ -38,29 +37,16 @@ func AuthLogin(ctx context.Context, in *npool.AuthLoginRequest) (*npool.AuthLogi
 	}
 
 	conf := &oauth.Config{ClientID: infos[0].PlatformAppKey, ClientSecret: infos[0].PlatformAppSecret, RedirectURL: infos[0].RedirectUrl}
-	switch in.GetPlatform() {
-	case appusermgrconst.ThirdGithub:
-		githubAuth := oauth.NewGitHubAuth(conf)
-		thirdUser, err := githubAuth.GetUserInfo(ctx, in.Code)
-		if err != nil {
-			return &npool.AuthLoginResponse{}, err
-		}
-		thirdUser.AppID = in.GetAppID()
-		thirdUser.ThirdId = conf.ClientID
-		thirdUser.Third = appusermgrconst.ThirdGithub
-		return Login(ctx, thirdUser)
-	case appusermgrconst.ThirdGoogle:
-		googleAuth := oauth.NewGoogleAuth(conf)
-		thirdUser, err := googleAuth.GetUserInfo(ctx, in.Code)
-		if err != nil {
-			return &npool.AuthLoginResponse{}, err
-		}
-		thirdUser.AppID = in.GetAppID()
-		thirdUser.ThirdId = conf.ClientID
-		thirdUser.Third = appusermgrconst.ThirdGoogle
-		return Login(ctx, thirdUser)
+	platform, ok := oauth.ThirdMap[in.GetPlatform()]
+	if !ok {
+		return &npool.AuthLoginResponse{}, fmt.Errorf("login method does not exist")
 	}
-	return &npool.AuthLoginResponse{}, nil
+	thirdMethod := oauth.NewContext(platform)
+	thirdUser, err := thirdMethod.GetUserInfo(ctx, in.GetCode(), conf)
+	if err != nil {
+		return &npool.AuthLoginResponse{}, err
+	}
+	return Login(ctx, thirdUser)
 }
 
 func Login(ctx context.Context, thirdUser *appusermgrpb.AppUserThird) (*npool.AuthLoginResponse, error) {
