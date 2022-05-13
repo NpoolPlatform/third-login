@@ -1,6 +1,6 @@
 # Npool go service app template
 
-[![Test](https://github.com/NpoolPlatform/third-login-gateway/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/NpoolPlatform/third-login-gateway/actions/workflows/main.yml)
+[![Test](https://github.com/NpoolPlatform/service-template/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/NpoolPlatform/service-template/actions/workflows/main.yml)
 
 [目录](#目录)
 - [功能](#功能)
@@ -8,14 +8,30 @@
 - [步骤](#步骤)
 - [最佳实践](#最佳实践)
 - [关于mysql](#关于mysql)
-- [GRPC](#grpc)
 
 -----------
 ### 功能
-- [ ] 全局公告
-- [ ] 全局公告用户已读/未读管理
-- [ ] 用户通知
-- [ ] 用户通知已读/未读状态管理
+- [x] 创建service template
+- [x] 封装日志库
+- [x] 统一service cli框架
+- [x] 集成cli框架(https://github.com/urfave/cli)
+- [x] 集成http server框架(https://github.com/go-chi/chi.git 不需要封装)
+- [x] 集成http client框架(https://github.com/go-resty/resty 不需要封装)
+- [x] 集成consul注册与发现
+- [x] 全局主机环境参数解析
+- [x] 集成apollo配置中心(https://github.com/philchia/agollo.git)
+- [x] 集成redis访问
+- [x] 集成mysql访问框架(https://github.com/ent/ent)
+* [x] 集成版本信息
+* [x] 集成rabbitmq访问
+* [x] 完善rabbitmq API
+* [x] 生成docker镜像
+* [x] 发布docker镜像
+* [x] 将服务部署到k8s集群
+* [x] 将服务api通过traefik-internet ingress代理，供外部应用调用(视服务功能决定是否需要)
+* [ ] ingress中服务相关api的traefik规则定义
+* [x] 集成GRPC
+* [x] 添加GRPC proto编译支持
 
 ### 命令
 * make init ```初始化仓库，创建go.mod```
@@ -23,8 +39,8 @@
 * make verify-build ```编译目标```
 * make test ```单元测试```
 * make generate-docker-images ```生成docker镜像```
-* make third-login-gateway ```单独编译服务```
-* make third-login-gateway-image ```单独生成服务镜像```
+* make service-template ```单独编译服务```
+* make service-template-image ```单独生成服务镜像```
 * make deploy-to-k8s-cluster ```部署到k8s集群```
 
 ### 最佳实践
@@ -36,6 +52,3 @@
 ### 关于mysql
 * 创建app后，从app.Mysql()获取本地mysql client
 * [文档参考](https://entgo.io/docs/sql-integration)
-
-### GRPC
-* [GRPC 环境搭建和简单学习](./grpc.md)

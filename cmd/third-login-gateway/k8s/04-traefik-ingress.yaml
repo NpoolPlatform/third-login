@@ -8,12 +8,13 @@ metadata:
     k8s.kuboard.cn/workload: third-login-gateway-traefik-app
     kubernetes.io/ingress.class: "traefik-internet"
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
-    traefik.ingress.kubernetes.io/router.middlewares: kube-system-strip-third-login-gateway-prefix@kubernetescrd,
-                                                      kube-system-common-headers@kubernetescrd,
-                                                      kube-system-headers-appid-to-body@kubernetescrd,
-                                                      kube-system-headers-userid-to-body@kubernetescrd,
-                                                      kube-system-headers-app-login-token-to-body@kubernetescrd,
-                                                      kube-system-app-rbac-auth@kubernetescrd
+    traefik.ingress.kubernetes.io/router.middlewares:
+      kube-system-strip-third-login-gateway-prefix@kubernetescrd,
+      kube-system-common-headers@kubernetescrd,
+      kube-system-headers-appid-to-body@kubernetescrd,
+      kube-system-headers-userid-to-body@kubernetescrd,
+      kube-system-headers-app-login-token-to-body@kubernetescrd,
+      kube-system-app-rbac-auth@kubernetescrd
 
 spec:
   rules:
@@ -27,5 +28,7 @@ spec:
     - host: api.procyon.vip
       http: *http_rules
     - host: api.xpool.top
+      http: *http_rules
+    - host: api.ohhash.com
       http: *http_rules
 

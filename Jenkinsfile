@@ -15,19 +15,6 @@ pipeline {
 
     stage('Prepare') {
       steps {
-        // Get linter and other build tools.
-        sh 'go get golang.org/x/lint/golint'
-        sh 'go install golang.org/x/lint/golint'
-        sh 'go get github.com/tebeka/go2xunit'
-        sh 'go install github.com/tebeka/go2xunit'
-        sh 'go get github.com/t-yuki/gocover-cobertura'
-        sh 'go install github.com/t-yuki/gocover-cobertura'
-
-        // Get dependencies
-        sh 'go get golang.org/x/image/tiff/lzw'
-        sh 'go install golang.org/x/image/tiff/lzw'
-        sh 'go get github.com/boombuler/barcode'
-        sh 'go install github.com/boombuler/barcode'
         sh 'make deps'
       }
     }
@@ -313,10 +300,10 @@ pipeline {
     stage('Deploy for development') {
       when {
         expression { DEPLOY_TARGET == 'true' }
-        expression { TARGET_ENV == 'development' }
+        expression { TARGET_ENV ==~ /.*development.*/ }
       }
       steps {
-        sh 'sed -i "s/uhub.service.ucloud.cn/$DOCKER_REGISTRY/g" cmd/third-login-gateway/k8s/01-third-login-gateway.yaml'
+        sh 'sed -i "s/uhub.service.ucloud.cn/$DOCKER_REGISTRY/g" cmd/third-login-gateway/k8s/02-third-login-gateway.yaml'
         sh 'TAG=latest make deploy-to-k8s-cluster'
       }
     }
@@ -324,7 +311,7 @@ pipeline {
     stage('Deploy for testing') {
       when {
         expression { DEPLOY_TARGET == 'true' }
-        expression { TARGET_ENV == 'testing' }
+        expression { TARGET_ENV ==~ /.*testing.*/ }
       }
       steps {
         sh(returnStdout: true, script: '''
@@ -333,8 +320,8 @@ pipeline {
 
           git reset --hard
           git checkout $tag
-          sed -i "s/third-login-gateway:latest/third-login-gateway:$tag/g" cmd/third-login-gateway/k8s/01-third-login-gateway.yaml
-          sed -i "s/uhub.service.ucloud.cn/$DOCKER_REGISTRY/g" cmd/third-login-gateway/k8s/01-third-login-gateway.yaml
+          sed -i "s/third-login-gateway:latest/third-login-gateway:$tag/g" cmd/third-login-gateway/k8s/02-third-login-gateway.yaml
+          sed -i "s/uhub.service.ucloud.cn/$DOCKER_REGISTRY/g" cmd/third-login-gateway/k8s/02-third-login-gateway.yaml
           TAG=$tag make deploy-to-k8s-cluster
         '''.stripIndent())
       }
@@ -358,8 +345,8 @@ pipeline {
 
           git reset --hard
           git checkout $tag
-          sed -i "s/third-login-gateway:latest/third-login-gateway:$tag/g" cmd/third-login-gateway/k8s/01-third-login-gateway.yaml
-          sed -i "s/uhub.service.ucloud.cn/$DOCKER_REGISTRY/g" cmd/third-login-gateway/k8s/01-third-login-gateway.yaml
+          sed -i "s/third-login-gateway:latest/third-login-gateway:$tag/g" cmd/third-login-gateway/k8s/02-third-login-gateway.yaml
+          sed -i "s/uhub.service.ucloud.cn/$DOCKER_REGISTRY/g" cmd/third-login-gateway/k8s/02-third-login-gateway.yaml
           TAG=$tag make deploy-to-k8s-cluster
         '''.stripIndent())
       }

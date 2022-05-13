@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"os"
 
 	appusermgrpb "github.com/NpoolPlatform/message/npool/appusermgr"
 	"github.com/go-resty/resty/v2"
@@ -36,7 +37,7 @@ func (a *GitHubAuth) GetAccessToken(ctx context.Context, code string, config *Co
 		AddParam("code", code).
 		Build()
 	client := resty.New()
-	client.SetProxy("http://192.168.31.135:7890") // update to ENV
+	client.SetProxy(os.Getenv("ENV_CURRENCY_REQUEST_PROXY"))
 	resp, err := client.R().
 		SetContext(ctx).
 		SetHeader("Accept", "application/json").
@@ -63,7 +64,7 @@ func (a *GitHubAuth) GetUserInfo(ctx context.Context, code string, config *Confi
 	url := githubUserInfoURL
 
 	client := resty.New()
-	client.SetProxy("http://192.168.31.135:7890") // update to ENV
+	client.SetProxy(os.Getenv("ENV_CURRENCY_REQUEST_PROXY"))
 	resp, err := client.R().
 		SetContext(ctx).
 		// batter is use Bearer

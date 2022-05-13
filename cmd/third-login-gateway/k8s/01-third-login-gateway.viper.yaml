@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: third-login-gateway-config
+  namespace: kube-system
+data:
+  service-conf: |
+    config:
+      hostname: "third-login-gateway.npool.top"
+      http_port: 50280
+      grpc_port: 50281
+      healthz_port: 50282
+      appid: "89089012783789789719823798127398"
+      serviceid: "5350142f-1a7d-4fdd-a7f0-296d8e375816"
+      logdir: "./"
+      apolloAccessKey: "0147fb70b815403790e8634b899fac07"

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"os"
 
 	appusermgrpb "github.com/NpoolPlatform/message/npool/appusermgr"
 	"github.com/go-resty/resty/v2"
@@ -39,7 +40,7 @@ func (a *GoogleAuth) GetAccessToken(ctx context.Context, code string, config *Co
 	// google redirect code is url encode,addParam will cause duplication url encode
 	url = url + "&code=" + code
 	client := resty.New()
-	client.SetProxy("http://192.168.31.135:7890") // update to ENV
+	client.SetProxy(os.Getenv("ENV_CURRENCY_REQUEST_PROXY"))
 	resp, err := client.R().
 		SetContext(ctx).
 		SetHeader("Content-Type", "application/json").
@@ -66,7 +67,7 @@ func (a *GoogleAuth) GetUserInfo(ctx context.Context, code string, config *Confi
 	}
 	url := googleUserInfoURL
 	client := resty.New()
-	client.SetProxy("http://192.168.31.135:7890") // update to ENV
+	client.SetProxy(os.Getenv("ENV_CURRENCY_REQUEST_PROXY")) // update to ENV
 	resp, err := client.R().
 		SetContext(ctx).
 		SetHeader("Content-Type", "application/json").

@@ -17,6 +17,9 @@ spec:
       - name: third-login-gateway
         image: uhub.service.ucloud.cn/entropypool/third-login-gateway:latest
         imagePullPolicy: Always
+        volumeMounts:
+          - name: service-config
+            mountPath: /etc/ThirdLoginGateway
         env:
         - name: ENV_ENVIRONMENT_TARGET
           valueFrom:
@@ -37,7 +40,18 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-
+        - name: ENV_CURRENCY_REQUEST_PROXY
+          valueFrom:
+            configMapKeyRef:
+              name: currency-proxy-environment
+              key: environment.currency_proxy
+      volumes:
+        - name: service-config
+          configMap:
+            name: third-login-gateway-config
+            items:
+              - key: service-conf
+                path: ThirdLoginGateway.viper.yaml
 ---
 apiVersion: v1
 kind: Service
@@ -53,7 +67,7 @@ spec:
     port: 50281
     targetPort: 50281
   - name: prometheus
-    port: 50283
-    targetPort: 50283
+    port: 50282
+    targetPort: 50282
   selector:
     app: third-login-gateway

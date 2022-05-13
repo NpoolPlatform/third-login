@@ -1,16 +1,20 @@
 package main
 
 import (
+	"time"
+
 	"github.com/NpoolPlatform/third-login-gateway/api"
 	db "github.com/NpoolPlatform/third-login-gateway/pkg/db"
 	msgcli "github.com/NpoolPlatform/third-login-gateway/pkg/message/client"
 	msglistener "github.com/NpoolPlatform/third-login-gateway/pkg/message/listener"
+	msg "github.com/NpoolPlatform/third-login-gateway/pkg/message/message"
 	msgsrv "github.com/NpoolPlatform/third-login-gateway/pkg/message/server"
 
 	grpc2 "github.com/NpoolPlatform/go-service-framework/pkg/grpc"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 
 	apimgrcli "github.com/NpoolPlatform/api-manager/pkg/client"
+
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 
 	cli "github.com/urfave/cli/v2"
@@ -41,6 +45,7 @@ var runCmd = &cli.Command{
 		}
 
 		go msglistener.Listen()
+		go msgSender()
 
 		return grpc2.RunGRPCGateWay(rpcGatewayRegister)
 	},
@@ -48,6 +53,9 @@ var runCmd = &cli.Command{
 
 func rpcRegister(server grpc.ServiceRegistrar) error {
 	api.Register(server)
+
+	apimgrcli.RegisterGRPC(server)
+
 	return nil
 }
 
@@ -60,4 +68,21 @@ func rpcGatewayRegister(mux *runtime.ServeMux, endpoint string, opts []grpc.Dial
 	apimgrcli.Register(mux)
 
 	return nil
+}
+
+func msgSender() {
+	id := 0
+	for {
+		logger.Sugar().Infof("send example")
+		err := msgsrv.PublishExample(&msg.Example{
+			ID:      id,
+			Example: "hello world",
+		})
+		if err != nil {
+			logger.Sugar().Errorf("fail to send example: %v", err)
+			return
+		}
+		id++
+		time.Sleep(3 * time.Second)
+	}
 }
