@@ -4,17 +4,19 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+
 	appusermgrpb "github.com/NpoolPlatform/message/npool/appusermgr"
 	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
 )
 
-var githubAuthorizeURL = "https://github.com/login/oauth/authorize"
-var githubTokenURL = "https://github.com/login/oauth/access_token"
-var githubUserInfoURL = "https://api.github.com/user"
+var (
+	githubAuthorizeURL = "https://github.com/login/oauth/authorize"
+	githubTokenURL     = "https://github.com/login/oauth/access_token"
+	githubUserInfoURL  = "https://api.github.com/user"
+)
 
-type GitHubAuth struct {
-}
+type GitHubAuth struct{}
 
 func (a *GitHubAuth) GetRedirectURL(config *Config) (string, error) {
 	url := NewURLBuilder(githubAuthorizeURL).
@@ -70,7 +72,7 @@ func (a *GitHubAuth) GetUserInfo(ctx context.Context, code string, config *Confi
 	if err != nil {
 		return &appusermgrpb.AppUserThird{}, err
 	}
-	m, err := JsonToMSS(string(resp.Body()))
+	m, err := JSONToMSS(string(resp.Body()))
 	if err != nil {
 		return nil, err
 	}

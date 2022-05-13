@@ -1,55 +1,55 @@
-package platform
+package thirdauth
 
 import (
 	"context"
 	"fmt"
+	"github.com/NpoolPlatform/third-login-gateway/pkg/db/ent/thirdauth"
 
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	npool "github.com/NpoolPlatform/message/npool/third-login-gateway"
 	constant "github.com/NpoolPlatform/third-login-gateway/pkg/const"
 	"github.com/NpoolPlatform/third-login-gateway/pkg/db"
 	"github.com/NpoolPlatform/third-login-gateway/pkg/db/ent"
-	"github.com/NpoolPlatform/third-login-gateway/pkg/db/ent/platform"
 	"github.com/google/uuid"
 )
 
-type Platform struct {
+type ThirdAuth struct {
 	*db.Entity
 }
 
-func New(ctx context.Context, tx *ent.Tx) (*Platform, error) {
+func New(ctx context.Context, tx *ent.Tx) (*ThirdAuth, error) {
 	e, err := db.NewEntity(ctx, tx)
 	if err != nil {
 		return nil, fmt.Errorf("fail create entity: %v", err)
 	}
 
-	return &Platform{
+	return &ThirdAuth{
 		Entity: e,
 	}, nil
 }
 
-func (s *Platform) rowToObject(row *ent.Platform) *npool.Platform {
-	return &npool.Platform{
-		ID:                row.ID.String(),
-		AppID:             row.AppID.String(),
-		Platform:          row.Platform,
-		PlatformAppKey:    row.PlatformAppKey,
-		PlatformAppSecret: row.PlatformAppSecret,
-		LogoUrl:           row.LogoURL,
-		RedirectUrl:       row.RedirectURL,
+func (s *ThirdAuth) rowToObject(row *ent.ThirdAuth) *npool.ThirdAuth {
+	return &npool.ThirdAuth{
+		ID:             row.ID.String(),
+		AppID:          row.AppID.String(),
+		Third:          row.Third,
+		ThirdAppKey:    row.ThirdAppKey,
+		ThirdAppSecret: row.ThirdAppSecret,
+		LogoUrl:        row.LogoURL,
+		RedirectUrl:    row.RedirectURL,
 	}
 }
 
-func (s *Platform) Create(ctx context.Context, in *npool.Platform) (*npool.Platform, error) {
-	var info *ent.Platform
+func (s *ThirdAuth) Create(ctx context.Context, in *npool.ThirdAuth) (*npool.ThirdAuth, error) {
+	var info *ent.ThirdAuth
 	var err error
 
 	err = db.WithTx(ctx, s.Tx, func(_ctx context.Context) error {
-		info, err = s.Tx.Platform.Create().
+		info, err = s.Tx.ThirdAuth.Create().
 			SetAppID(uuid.MustParse(in.GetAppID())).
-			SetPlatform(in.GetPlatform()).
-			SetPlatformAppKey(in.GetPlatformAppKey()).
-			SetPlatformAppSecret(in.GetPlatformAppSecret()).
+			SetThird(in.GetThird()).
+			SetThirdAppKey(in.GetThirdAppKey()).
+			SetThirdAppSecret(in.GetThirdAppSecret()).
 			SetLogoURL(in.GetLogoUrl()).
 			Save(_ctx)
 		return err
@@ -61,29 +61,29 @@ func (s *Platform) Create(ctx context.Context, in *npool.Platform) (*npool.Platf
 	return s.rowToObject(info), nil
 }
 
-func (s *Platform) Update(ctx context.Context, in *npool.Platform) (*npool.Platform, error) {
-	var info *ent.Platform
+func (s *ThirdAuth) Update(ctx context.Context, in *npool.ThirdAuth) (*npool.ThirdAuth, error) {
+	var info *ent.ThirdAuth
 	var err error
 
 	err = db.WithTx(ctx, s.Tx, func(_ctx context.Context) error {
-		info, err = s.Tx.Platform.UpdateOneID(uuid.MustParse(in.GetID())).
+		info, err = s.Tx.ThirdAuth.UpdateOneID(uuid.MustParse(in.GetID())).
 			SetAppID(uuid.MustParse(in.GetAppID())).
-			SetPlatform(in.GetPlatform()).
-			SetPlatformAppKey(in.GetPlatformAppKey()).
-			SetPlatformAppSecret(in.GetPlatformAppSecret()).
+			SetThird(in.GetThird()).
+			SetThirdAppKey(in.GetThirdAppKey()).
+			SetThirdAppSecret(in.GetThirdAppSecret()).
 			SetLogoURL(in.GetLogoUrl()).
 			Save(_ctx)
 		return err
 	})
 	if err != nil {
-		return nil, fmt.Errorf("fail update stock: %v", err)
+		return nil, fmt.Errorf("fail update third auth: %v", err)
 	}
 
 	return s.rowToObject(info), nil
 }
 
-func (s *Platform) Rows(ctx context.Context, conds cruder.Conds, offset, limit int) ([]*npool.Platform, int, error) {
-	rows := []*ent.Platform{}
+func (s *ThirdAuth) Rows(ctx context.Context, conds cruder.Conds, offset, limit int) ([]*npool.ThirdAuth, int, error) {
+	rows := []*ent.ThirdAuth{}
 	var total int
 
 	err := db.WithTx(ctx, s.Tx, func(_ctx context.Context) error {
@@ -112,7 +112,7 @@ func (s *Platform) Rows(ctx context.Context, conds cruder.Conds, offset, limit i
 		return nil, 0, fmt.Errorf("fail get platform: %v", err)
 	}
 
-	infos := []*npool.Platform{}
+	infos := []*npool.ThirdAuth{}
 	for _, row := range rows {
 		infos = append(infos, s.rowToObject(row))
 	}
@@ -120,8 +120,8 @@ func (s *Platform) Rows(ctx context.Context, conds cruder.Conds, offset, limit i
 	return infos, total, nil
 }
 
-func (s *Platform) queryFromConds(conds cruder.Conds) (*ent.PlatformQuery, error) { //nolint
-	stm := s.Tx.Platform.Query()
+func (s *ThirdAuth) queryFromConds(conds cruder.Conds) (*ent.ThirdAuthQuery, error) { //nolint
+	stm := s.Tx.ThirdAuth.Query()
 	for k, v := range conds {
 		switch k {
 		case constant.FieldID:
@@ -129,19 +129,19 @@ func (s *Platform) queryFromConds(conds cruder.Conds) (*ent.PlatformQuery, error
 			if err != nil {
 				return nil, fmt.Errorf("invalid id: %v", err)
 			}
-			stm = stm.Where(platform.ID(id))
-		case constant.PlatformFieldAppID:
+			stm = stm.Where(thirdauth.ID(id))
+		case constant.ThirdAuthFieldAppID:
 			val, err := cruder.AnyTypeUUID(v.Val)
 			if err != nil {
 				return nil, fmt.Errorf("invalid value type: %v", err)
 			}
-			stm = stm.Where(platform.AppID(val))
-		case constant.PlatformFieldPlatform:
+			stm = stm.Where(thirdauth.AppID(val))
+		case constant.ThirdAuthFieldThird:
 			val, err := cruder.AnyTypeString(v.Val)
 			if err != nil {
 				return nil, fmt.Errorf("invalid value type: %v", err)
 			}
-			stm = stm.Where(platform.Platform(val))
+			stm = stm.Where(thirdauth.Third(val))
 		default:
 			return nil, fmt.Errorf("invalid platform field")
 		}

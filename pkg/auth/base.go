@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
 	appusermgrconst "github.com/NpoolPlatform/appuser-manager/pkg/const"
 	appusermgrpb "github.com/NpoolPlatform/message/npool/appusermgr"
 )
@@ -36,7 +37,7 @@ func NewContext(thirdMethod ThirdMethod) *Context {
 	}
 }
 
-func JsonToMSS(s string) (map[string]string, error) {
+func JSONToMSS(s string) (map[string]string, error) {
 	if s == "" {
 		return nil, fmt.Errorf("map empty")
 	}

@@ -3,7 +3,7 @@ package constant
 type PlatformField string
 
 const (
-	FieldID               = "ID"
-	PlatformFieldAppID    = "AppID"
-	PlatformFieldPlatform = "Platform"
+	FieldID             = "ID"
+	ThirdAuthFieldAppID = "AppID"
+	ThirdAuthFieldThird = "Third"
 )

@@ -10,7 +10,7 @@ import (
 	"github.com/NpoolPlatform/third-login-gateway/pkg/db/ent/migrate"
 	"github.com/google/uuid"
 
-	"github.com/NpoolPlatform/third-login-gateway/pkg/db/ent/platform"
+	"github.com/NpoolPlatform/third-login-gateway/pkg/db/ent/thirdauth"
 
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
@@ -21,8 +21,8 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
-	// Platform is the client for interacting with the Platform builders.
-	Platform *PlatformClient
+	// ThirdAuth is the client for interacting with the ThirdAuth builders.
+	ThirdAuth *ThirdAuthClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -36,7 +36,7 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
-	c.Platform = NewPlatformClient(c.config)
+	c.ThirdAuth = NewThirdAuthClient(c.config)
 }
 
 // Open opens a database/sql.DB specified by the driver name and
@@ -68,9 +68,9 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:      ctx,
-		config:   cfg,
-		Platform: NewPlatformClient(cfg),
+		ctx:       ctx,
+		config:    cfg,
+		ThirdAuth: NewThirdAuthClient(cfg),
 	}, nil
 }
 
@@ -88,16 +88,16 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:      ctx,
-		config:   cfg,
-		Platform: NewPlatformClient(cfg),
+		ctx:       ctx,
+		config:    cfg,
+		ThirdAuth: NewThirdAuthClient(cfg),
 	}, nil
 }
 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		Platform.
+//		ThirdAuth.
 //		Query().
 //		Count(ctx)
 //
@@ -120,87 +120,87 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
-	c.Platform.Use(hooks...)
+	c.ThirdAuth.Use(hooks...)
 }
 
-// PlatformClient is a client for the Platform schema.
-type PlatformClient struct {
+// ThirdAuthClient is a client for the ThirdAuth schema.
+type ThirdAuthClient struct {
 	config
 }
 
-// NewPlatformClient returns a client for the Platform from the given config.
-func NewPlatformClient(c config) *PlatformClient {
-	return &PlatformClient{config: c}
+// NewThirdAuthClient returns a client for the ThirdAuth from the given config.
+func NewThirdAuthClient(c config) *ThirdAuthClient {
+	return &ThirdAuthClient{config: c}
 }
 
 // Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `platform.Hooks(f(g(h())))`.
-func (c *PlatformClient) Use(hooks ...Hook) {
-	c.hooks.Platform = append(c.hooks.Platform, hooks...)
+// A call to `Use(f, g, h)` equals to `thirdauth.Hooks(f(g(h())))`.
+func (c *ThirdAuthClient) Use(hooks ...Hook) {
+	c.hooks.ThirdAuth = append(c.hooks.ThirdAuth, hooks...)
 }
 
-// Create returns a create builder for Platform.
-func (c *PlatformClient) Create() *PlatformCreate {
-	mutation := newPlatformMutation(c.config, OpCreate)
-	return &PlatformCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Create returns a create builder for ThirdAuth.
+func (c *ThirdAuthClient) Create() *ThirdAuthCreate {
+	mutation := newThirdAuthMutation(c.config, OpCreate)
+	return &ThirdAuthCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// CreateBulk returns a builder for creating a bulk of Platform entities.
-func (c *PlatformClient) CreateBulk(builders ...*PlatformCreate) *PlatformCreateBulk {
-	return &PlatformCreateBulk{config: c.config, builders: builders}
+// CreateBulk returns a builder for creating a bulk of ThirdAuth entities.
+func (c *ThirdAuthClient) CreateBulk(builders ...*ThirdAuthCreate) *ThirdAuthCreateBulk {
+	return &ThirdAuthCreateBulk{config: c.config, builders: builders}
 }
 
-// Update returns an update builder for Platform.
-func (c *PlatformClient) Update() *PlatformUpdate {
-	mutation := newPlatformMutation(c.config, OpUpdate)
-	return &PlatformUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Update returns an update builder for ThirdAuth.
+func (c *ThirdAuthClient) Update() *ThirdAuthUpdate {
+	mutation := newThirdAuthMutation(c.config, OpUpdate)
+	return &ThirdAuthUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *PlatformClient) UpdateOne(pl *Platform) *PlatformUpdateOne {
-	mutation := newPlatformMutation(c.config, OpUpdateOne, withPlatform(pl))
-	return &PlatformUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *ThirdAuthClient) UpdateOne(ta *ThirdAuth) *ThirdAuthUpdateOne {
+	mutation := newThirdAuthMutation(c.config, OpUpdateOne, withThirdAuth(ta))
+	return &ThirdAuthUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *PlatformClient) UpdateOneID(id uuid.UUID) *PlatformUpdateOne {
-	mutation := newPlatformMutation(c.config, OpUpdateOne, withPlatformID(id))
-	return &PlatformUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *ThirdAuthClient) UpdateOneID(id uuid.UUID) *ThirdAuthUpdateOne {
+	mutation := newThirdAuthMutation(c.config, OpUpdateOne, withThirdAuthID(id))
+	return &ThirdAuthUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// Delete returns a delete builder for Platform.
-func (c *PlatformClient) Delete() *PlatformDelete {
-	mutation := newPlatformMutation(c.config, OpDelete)
-	return &PlatformDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Delete returns a delete builder for ThirdAuth.
+func (c *ThirdAuthClient) Delete() *ThirdAuthDelete {
+	mutation := newThirdAuthMutation(c.config, OpDelete)
+	return &ThirdAuthDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // DeleteOne returns a delete builder for the given entity.
-func (c *PlatformClient) DeleteOne(pl *Platform) *PlatformDeleteOne {
-	return c.DeleteOneID(pl.ID)
+func (c *ThirdAuthClient) DeleteOne(ta *ThirdAuth) *ThirdAuthDeleteOne {
+	return c.DeleteOneID(ta.ID)
 }
 
 // DeleteOneID returns a delete builder for the given id.
-func (c *PlatformClient) DeleteOneID(id uuid.UUID) *PlatformDeleteOne {
-	builder := c.Delete().Where(platform.ID(id))
+func (c *ThirdAuthClient) DeleteOneID(id uuid.UUID) *ThirdAuthDeleteOne {
+	builder := c.Delete().Where(thirdauth.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
-	return &PlatformDeleteOne{builder}
+	return &ThirdAuthDeleteOne{builder}
 }
 
-// Query returns a query builder for Platform.
-func (c *PlatformClient) Query() *PlatformQuery {
-	return &PlatformQuery{
+// Query returns a query builder for ThirdAuth.
+func (c *ThirdAuthClient) Query() *ThirdAuthQuery {
+	return &ThirdAuthQuery{
 		config: c.config,
 	}
 }
 
-// Get returns a Platform entity by its id.
-func (c *PlatformClient) Get(ctx context.Context, id uuid.UUID) (*Platform, error) {
-	return c.Query().Where(platform.ID(id)).Only(ctx)
+// Get returns a ThirdAuth entity by its id.
+func (c *ThirdAuthClient) Get(ctx context.Context, id uuid.UUID) (*ThirdAuth, error) {
+	return c.Query().Where(thirdauth.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *PlatformClient) GetX(ctx context.Context, id uuid.UUID) *Platform {
+func (c *ThirdAuthClient) GetX(ctx context.Context, id uuid.UUID) *ThirdAuth {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -209,7 +209,7 @@ func (c *PlatformClient) GetX(ctx context.Context, id uuid.UUID) *Platform {
 }
 
 // Hooks returns the client hooks.
-func (c *PlatformClient) Hooks() []Hook {
-	hooks := c.hooks.Platform
-	return append(hooks[:len(hooks):len(hooks)], platform.Hooks[:]...)
+func (c *ThirdAuthClient) Hooks() []Hook {
+	hooks := c.hooks.ThirdAuth
+	return append(hooks[:len(hooks):len(hooks)], thirdauth.Hooks[:]...)
 }

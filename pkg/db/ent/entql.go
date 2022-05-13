@@ -3,7 +3,7 @@
 package ent
 
 import (
-	"github.com/NpoolPlatform/third-login-gateway/pkg/db/ent/platform"
+	"github.com/NpoolPlatform/third-login-gateway/pkg/db/ent/thirdauth"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -16,25 +16,24 @@ var schemaGraph = func() *sqlgraph.Schema {
 	graph := &sqlgraph.Schema{Nodes: make([]*sqlgraph.Node, 1)}
 	graph.Nodes[0] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
-			Table:   platform.Table,
-			Columns: platform.Columns,
+			Table:   thirdauth.Table,
+			Columns: thirdauth.Columns,
 			ID: &sqlgraph.FieldSpec{
 				Type:   field.TypeUUID,
-				Column: platform.FieldID,
+				Column: thirdauth.FieldID,
 			},
 		},
-		Type: "Platform",
+		Type: "ThirdAuth",
 		Fields: map[string]*sqlgraph.FieldSpec{
-			platform.FieldCreatedAt:         {Type: field.TypeUint32, Column: platform.FieldCreatedAt},
-			platform.FieldUpdatedAt:         {Type: field.TypeUint32, Column: platform.FieldUpdatedAt},
-			platform.FieldDeletedAt:         {Type: field.TypeUint32, Column: platform.FieldDeletedAt},
-			platform.FieldAppID:             {Type: field.TypeUUID, Column: platform.FieldAppID},
-			platform.FieldPlatform:          {Type: field.TypeString, Column: platform.FieldPlatform},
-			platform.FieldPlatformAuthURL:   {Type: field.TypeString, Column: platform.FieldPlatformAuthURL},
-			platform.FieldLogoURL:           {Type: field.TypeString, Column: platform.FieldLogoURL},
-			platform.FieldPlatformAppKey:    {Type: field.TypeString, Column: platform.FieldPlatformAppKey},
-			platform.FieldPlatformAppSecret: {Type: field.TypeString, Column: platform.FieldPlatformAppSecret},
-			platform.FieldRedirectURL:       {Type: field.TypeString, Column: platform.FieldRedirectURL},
+			thirdauth.FieldCreatedAt:      {Type: field.TypeUint32, Column: thirdauth.FieldCreatedAt},
+			thirdauth.FieldUpdatedAt:      {Type: field.TypeUint32, Column: thirdauth.FieldUpdatedAt},
+			thirdauth.FieldDeletedAt:      {Type: field.TypeUint32, Column: thirdauth.FieldDeletedAt},
+			thirdauth.FieldAppID:          {Type: field.TypeUUID, Column: thirdauth.FieldAppID},
+			thirdauth.FieldThird:          {Type: field.TypeString, Column: thirdauth.FieldThird},
+			thirdauth.FieldLogoURL:        {Type: field.TypeString, Column: thirdauth.FieldLogoURL},
+			thirdauth.FieldThirdAppKey:    {Type: field.TypeString, Column: thirdauth.FieldThirdAppKey},
+			thirdauth.FieldThirdAppSecret: {Type: field.TypeString, Column: thirdauth.FieldThirdAppSecret},
+			thirdauth.FieldRedirectURL:    {Type: field.TypeString, Column: thirdauth.FieldRedirectURL},
 		},
 	}
 	return graph
@@ -47,32 +46,32 @@ type predicateAdder interface {
 }
 
 // addPredicate implements the predicateAdder interface.
-func (pq *PlatformQuery) addPredicate(pred func(s *sql.Selector)) {
-	pq.predicates = append(pq.predicates, pred)
+func (taq *ThirdAuthQuery) addPredicate(pred func(s *sql.Selector)) {
+	taq.predicates = append(taq.predicates, pred)
 }
 
-// Filter returns a Filter implementation to apply filters on the PlatformQuery builder.
-func (pq *PlatformQuery) Filter() *PlatformFilter {
-	return &PlatformFilter{pq}
+// Filter returns a Filter implementation to apply filters on the ThirdAuthQuery builder.
+func (taq *ThirdAuthQuery) Filter() *ThirdAuthFilter {
+	return &ThirdAuthFilter{taq}
 }
 
 // addPredicate implements the predicateAdder interface.
-func (m *PlatformMutation) addPredicate(pred func(s *sql.Selector)) {
+func (m *ThirdAuthMutation) addPredicate(pred func(s *sql.Selector)) {
 	m.predicates = append(m.predicates, pred)
 }
 
-// Filter returns an entql.Where implementation to apply filters on the PlatformMutation builder.
-func (m *PlatformMutation) Filter() *PlatformFilter {
-	return &PlatformFilter{m}
+// Filter returns an entql.Where implementation to apply filters on the ThirdAuthMutation builder.
+func (m *ThirdAuthMutation) Filter() *ThirdAuthFilter {
+	return &ThirdAuthFilter{m}
 }
 
-// PlatformFilter provides a generic filtering capability at runtime for PlatformQuery.
-type PlatformFilter struct {
+// ThirdAuthFilter provides a generic filtering capability at runtime for ThirdAuthQuery.
+type ThirdAuthFilter struct {
 	predicateAdder
 }
 
 // Where applies the entql predicate on the query filter.
-func (f *PlatformFilter) Where(p entql.P) {
+func (f *ThirdAuthFilter) Where(p entql.P) {
 	f.addPredicate(func(s *sql.Selector) {
 		if err := schemaGraph.EvalP(schemaGraph.Nodes[0].Type, p, s); err != nil {
 			s.AddError(err)
@@ -81,56 +80,51 @@ func (f *PlatformFilter) Where(p entql.P) {
 }
 
 // WhereID applies the entql [16]byte predicate on the id field.
-func (f *PlatformFilter) WhereID(p entql.ValueP) {
-	f.Where(p.Field(platform.FieldID))
+func (f *ThirdAuthFilter) WhereID(p entql.ValueP) {
+	f.Where(p.Field(thirdauth.FieldID))
 }
 
 // WhereCreatedAt applies the entql uint32 predicate on the created_at field.
-func (f *PlatformFilter) WhereCreatedAt(p entql.Uint32P) {
-	f.Where(p.Field(platform.FieldCreatedAt))
+func (f *ThirdAuthFilter) WhereCreatedAt(p entql.Uint32P) {
+	f.Where(p.Field(thirdauth.FieldCreatedAt))
 }
 
 // WhereUpdatedAt applies the entql uint32 predicate on the updated_at field.
-func (f *PlatformFilter) WhereUpdatedAt(p entql.Uint32P) {
-	f.Where(p.Field(platform.FieldUpdatedAt))
+func (f *ThirdAuthFilter) WhereUpdatedAt(p entql.Uint32P) {
+	f.Where(p.Field(thirdauth.FieldUpdatedAt))
 }
 
 // WhereDeletedAt applies the entql uint32 predicate on the deleted_at field.
-func (f *PlatformFilter) WhereDeletedAt(p entql.Uint32P) {
-	f.Where(p.Field(platform.FieldDeletedAt))
+func (f *ThirdAuthFilter) WhereDeletedAt(p entql.Uint32P) {
+	f.Where(p.Field(thirdauth.FieldDeletedAt))
 }
 
 // WhereAppID applies the entql [16]byte predicate on the app_id field.
-func (f *PlatformFilter) WhereAppID(p entql.ValueP) {
-	f.Where(p.Field(platform.FieldAppID))
+func (f *ThirdAuthFilter) WhereAppID(p entql.ValueP) {
+	f.Where(p.Field(thirdauth.FieldAppID))
 }
 
-// WherePlatform applies the entql string predicate on the platform field.
-func (f *PlatformFilter) WherePlatform(p entql.StringP) {
-	f.Where(p.Field(platform.FieldPlatform))
-}
-
-// WherePlatformAuthURL applies the entql string predicate on the platform_auth_url field.
-func (f *PlatformFilter) WherePlatformAuthURL(p entql.StringP) {
-	f.Where(p.Field(platform.FieldPlatformAuthURL))
+// WhereThird applies the entql string predicate on the third field.
+func (f *ThirdAuthFilter) WhereThird(p entql.StringP) {
+	f.Where(p.Field(thirdauth.FieldThird))
 }
 
 // WhereLogoURL applies the entql string predicate on the logo_url field.
-func (f *PlatformFilter) WhereLogoURL(p entql.StringP) {
-	f.Where(p.Field(platform.FieldLogoURL))
+func (f *ThirdAuthFilter) WhereLogoURL(p entql.StringP) {
+	f.Where(p.Field(thirdauth.FieldLogoURL))
 }
 
-// WherePlatformAppKey applies the entql string predicate on the platform_app_key field.
-func (f *PlatformFilter) WherePlatformAppKey(p entql.StringP) {
-	f.Where(p.Field(platform.FieldPlatformAppKey))
+// WhereThirdAppKey applies the entql string predicate on the third_app_key field.
+func (f *ThirdAuthFilter) WhereThirdAppKey(p entql.StringP) {
+	f.Where(p.Field(thirdauth.FieldThirdAppKey))
 }
 
-// WherePlatformAppSecret applies the entql string predicate on the platform_app_secret field.
-func (f *PlatformFilter) WherePlatformAppSecret(p entql.StringP) {
-	f.Where(p.Field(platform.FieldPlatformAppSecret))
+// WhereThirdAppSecret applies the entql string predicate on the third_app_secret field.
+func (f *ThirdAuthFilter) WhereThirdAppSecret(p entql.StringP) {
+	f.Where(p.Field(thirdauth.FieldThirdAppSecret))
 }
 
 // WhereRedirectURL applies the entql string predicate on the redirect_url field.
-func (f *PlatformFilter) WhereRedirectURL(p entql.StringP) {
-	f.Where(p.Field(platform.FieldRedirectURL))
+func (f *ThirdAuthFilter) WhereRedirectURL(p entql.StringP) {
+	f.Where(p.Field(thirdauth.FieldRedirectURL))
 }

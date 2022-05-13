@@ -10,12 +10,13 @@ import (
 	"github.com/google/uuid"
 )
 
-type GoogleAuth struct {
-}
+type GoogleAuth struct{}
 
-var googleAuthorizeURL = "https://accounts.google.com/o/oauth2/v2/auth"
-var googleTokenURL = "https://oauth2.googleapis.com/token"
-var googleUserInfoURL = "https://www.googleapis.com/oauth2/v2/userinfo"
+var (
+	googleAuthorizeURL = "https://accounts.google.com/o/oauth2/v2/auth"
+	googleTokenURL     = "https://oauth2.googleapis.com/token"
+	googleUserInfoURL  = "https://www.googleapis.com/oauth2/v2/userinfo"
+)
 
 func (a *GoogleAuth) GetRedirectURL(config *Config) (string, error) {
 	url := NewURLBuilder(googleAuthorizeURL).
@@ -75,7 +76,7 @@ func (a *GoogleAuth) GetUserInfo(ctx context.Context, code string, config *Confi
 		return &appusermgrpb.AppUserThird{}, err
 	}
 
-	m, err := JsonToMSS(string(resp.Body()))
+	m, err := JSONToMSS(string(resp.Body()))
 	if err != nil {
 		return nil, err
 	}

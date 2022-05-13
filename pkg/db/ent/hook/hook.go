@@ -9,15 +9,15 @@ import (
 	"github.com/NpoolPlatform/third-login-gateway/pkg/db/ent"
 )
 
-// The PlatformFunc type is an adapter to allow the use of ordinary
-// function as Platform mutator.
-type PlatformFunc func(context.Context, *ent.PlatformMutation) (ent.Value, error)
+// The ThirdAuthFunc type is an adapter to allow the use of ordinary
+// function as ThirdAuth mutator.
+type ThirdAuthFunc func(context.Context, *ent.ThirdAuthMutation) (ent.Value, error)
 
 // Mutate calls f(ctx, m).
-func (f PlatformFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	mv, ok := m.(*ent.PlatformMutation)
+func (f ThirdAuthFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.ThirdAuthMutation)
 	if !ok {
-		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.PlatformMutation", m)
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ThirdAuthMutation", m)
 	}
 	return f(ctx, mv)
 }

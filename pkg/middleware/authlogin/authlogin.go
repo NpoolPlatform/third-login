@@ -3,19 +3,16 @@ package authlogin
 import (
 	"context"
 	"fmt"
-
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
+	appusermgrpb "github.com/NpoolPlatform/message/npool/appusermgr"
 	npool "github.com/NpoolPlatform/message/npool/third-login-gateway"
 	oauth "github.com/NpoolPlatform/third-login-gateway/pkg/auth"
 	constant "github.com/NpoolPlatform/third-login-gateway/pkg/const"
-	crud "github.com/NpoolPlatform/third-login-gateway/pkg/crud/platform"
-	"github.com/google/uuid"
+	crud "github.com/NpoolPlatform/third-login-gateway/pkg/crud/thirdauth"
+	grpc2 "github.com/NpoolPlatform/third-login-gateway/pkg/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-
-	appusermgrpb "github.com/NpoolPlatform/message/npool/appusermgr"
-	grpc2 "github.com/NpoolPlatform/third-login-gateway/pkg/grpc"
 )
 
 func AuthLogin(ctx context.Context, in *npool.AuthLoginRequest) (*npool.AuthLoginResponse, error) {
@@ -26,18 +23,18 @@ func AuthLogin(ctx context.Context, in *npool.AuthLoginRequest) (*npool.AuthLogi
 	}
 
 	infos, _, err := schema.Rows(ctx, cruder.NewConds().
-		WithCond(constant.PlatformFieldAppID, cruder.EQ, in.GetAppID()).
-		WithCond(constant.PlatformFieldPlatform, cruder.EQ, in.GetPlatform()), 0, 100)
+		WithCond(constant.ThirdAuthFieldAppID, cruder.EQ, in.GetAppID()).
+		WithCond(constant.ThirdAuthFieldThird, cruder.EQ, in.GetThird()), 0, 100)
 	if err != nil {
-		logger.Sugar().Errorf("fail get platform: %v", err)
+		logger.Sugar().Errorf("fail get third auth: %v", err)
 		return &npool.AuthLoginResponse{}, status.Error(codes.Internal, err.Error())
 	}
 	if len(infos) == 0 {
-		return &npool.AuthLoginResponse{}, status.Error(codes.Internal, "not find platform")
+		return &npool.AuthLoginResponse{}, status.Error(codes.Internal, "not find third auth")
 	}
 
-	conf := &oauth.Config{ClientID: infos[0].PlatformAppKey, ClientSecret: infos[0].PlatformAppSecret, RedirectURL: infos[0].RedirectUrl}
-	platform, ok := oauth.ThirdMap[in.GetPlatform()]
+	conf := &oauth.Config{ClientID: infos[0].ThirdAppKey, ClientSecret: infos[0].ThirdAppSecret, RedirectURL: infos[0].RedirectUrl}
+	platform, ok := oauth.ThirdMap[in.GetThird()]
 	if !ok {
 		return &npool.AuthLoginResponse{}, fmt.Errorf("login method does not exist")
 	}
@@ -46,11 +43,9 @@ func AuthLogin(ctx context.Context, in *npool.AuthLoginRequest) (*npool.AuthLogi
 	if err != nil {
 		return &npool.AuthLoginResponse{}, err
 	}
-	return Login(ctx, thirdUser)
-}
 
-func Login(ctx context.Context, thirdUser *appusermgrpb.AppUserThird) (*npool.AuthLoginResponse, error) {
-	tUser, err := grpc2.GetAppUserThirdByAppThird(ctx, &appusermgrpb.GetAppUserThirdByAppThirdRequest{
+	var tUser *appusermgrpb.AppUserThird
+	tUser, err = grpc2.GetAppUserThirdByAppThird(ctx, &appusermgrpb.GetAppUserThirdByAppThirdRequest{
 		AppID:       thirdUser.AppID,
 		ThirdID:     thirdUser.ThirdId,
 		ThirdUserID: thirdUser.ThirdUserId,
@@ -59,10 +54,7 @@ func Login(ctx context.Context, thirdUser *appusermgrpb.AppUserThird) (*npool.Au
 		return &npool.AuthLoginResponse{}, err
 	}
 
-	userID := ""
-	if tUser != nil {
-		userID = tUser.UserID
-	} else {
+	if tUser == nil {
 		user, err := grpc2.CreateAppUserWithThird(ctx, &appusermgrpb.CreateAppUserWithThirdRequest{
 			User: &appusermgrpb.AppUser{
 				AppID: thirdUser.AppID,
@@ -72,32 +64,16 @@ func Login(ctx context.Context, thirdUser *appusermgrpb.AppUserThird) (*npool.Au
 		if err != nil {
 			return &npool.AuthLoginResponse{}, err
 		}
-		userID = user.ID
+		tUser.UserID = user.ID
 	}
 
-	meta, err := MetadataFromContext(ctx)
-	if err != nil {
-		return &npool.AuthLoginResponse{}, fmt.Errorf("fail create login metadata: %v", err)
-	}
-	meta.AppID, err = uuid.Parse(thirdUser.AppID)
-	if err != nil {
-		return &npool.AuthLoginResponse{}, err
-	}
 	userInfo, err := grpc2.GetAppUserInfo(ctx, &appusermgrpb.GetAppUserInfoRequest{
-		ID: userID,
+		ID: tUser.UserID,
 	})
 	if err != nil {
 		return &npool.AuthLoginResponse{}, err
 	}
-	meta.UserID = uuid.MustParse(userInfo.User.ID)
-	meta.ThirdUserID = thirdUser.ThirdUserId
-	meta.Third = thirdUser.Third
-	token, err := createToken(meta)
-	if err != nil {
-		return &npool.AuthLoginResponse{}, fmt.Errorf("fail create token: %v", err)
-	}
 	return &npool.AuthLoginResponse{
-		Info:  userInfo,
-		Token: token,
+		Info: userInfo,
 	}, err
 }
