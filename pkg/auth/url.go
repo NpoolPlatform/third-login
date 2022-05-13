@@ -2,7 +2,6 @@ package auth
 
 import (
 	"fmt"
-	"log"
 	"net/url"
 	"strings"
 )
@@ -17,7 +16,6 @@ func NewURLBuilder(baseURL string) *URLBuilder {
 	uv, err := url.ParseRequestURI(baseURL)
 	builder := &URLBuilder{}
 	if err != nil {
-		log.Println(err)
 		return builder
 	}
 	urls := strings.SplitN(uv.String(), "?", 2)

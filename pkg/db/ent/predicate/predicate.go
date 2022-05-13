@@ -6,5 +6,5 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
-// Platform is the predicate function for platform builders.
-type Platform func(*sql.Selector)
+// ThirdAuth is the predicate function for thirdauth builders.
+type ThirdAuth func(*sql.Selector)

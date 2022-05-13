@@ -165,28 +165,28 @@ func DenyMutationOperationRule(op ent.Op) MutationRule {
 	return OnMutationOperation(rule, op)
 }
 
-// The PlatformQueryRuleFunc type is an adapter to allow the use of ordinary
+// The ThirdAuthQueryRuleFunc type is an adapter to allow the use of ordinary
 // functions as a query rule.
-type PlatformQueryRuleFunc func(context.Context, *ent.PlatformQuery) error
+type ThirdAuthQueryRuleFunc func(context.Context, *ent.ThirdAuthQuery) error
 
 // EvalQuery return f(ctx, q).
-func (f PlatformQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
-	if q, ok := q.(*ent.PlatformQuery); ok {
+func (f ThirdAuthQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.ThirdAuthQuery); ok {
 		return f(ctx, q)
 	}
-	return Denyf("ent/privacy: unexpected query type %T, expect *ent.PlatformQuery", q)
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.ThirdAuthQuery", q)
 }
 
-// The PlatformMutationRuleFunc type is an adapter to allow the use of ordinary
+// The ThirdAuthMutationRuleFunc type is an adapter to allow the use of ordinary
 // functions as a mutation rule.
-type PlatformMutationRuleFunc func(context.Context, *ent.PlatformMutation) error
+type ThirdAuthMutationRuleFunc func(context.Context, *ent.ThirdAuthMutation) error
 
 // EvalMutation calls f(ctx, m).
-func (f PlatformMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
-	if m, ok := m.(*ent.PlatformMutation); ok {
+func (f ThirdAuthMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.ThirdAuthMutation); ok {
 		return f(ctx, m)
 	}
-	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.PlatformMutation", m)
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.ThirdAuthMutation", m)
 }
 
 type (
@@ -224,7 +224,7 @@ var _ QueryMutationRule = FilterFunc(nil)
 
 func queryFilter(q ent.Query) (Filter, error) {
 	switch q := q.(type) {
-	case *ent.PlatformQuery:
+	case *ent.ThirdAuthQuery:
 		return q.Filter(), nil
 	default:
 		return nil, Denyf("ent/privacy: unexpected query type %T for query filter", q)
@@ -233,7 +233,7 @@ func queryFilter(q ent.Query) (Filter, error) {
 
 func mutationFilter(m ent.Mutation) (Filter, error) {
 	switch m := m.(type) {
-	case *ent.PlatformMutation:
+	case *ent.ThirdAuthMutation:
 		return m.Filter(), nil
 	default:
 		return nil, Denyf("ent/privacy: unexpected mutation type %T for mutation filter", m)

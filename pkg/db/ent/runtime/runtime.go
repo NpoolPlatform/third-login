@@ -5,8 +5,8 @@ package runtime
 import (
 	"context"
 
-	"github.com/NpoolPlatform/third-login-gateway/pkg/db/ent/platform"
 	"github.com/NpoolPlatform/third-login-gateway/pkg/db/ent/schema"
+	"github.com/NpoolPlatform/third-login-gateway/pkg/db/ent/thirdauth"
 	"github.com/google/uuid"
 
 	"entgo.io/ent"
@@ -17,38 +17,38 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
-	platformMixin := schema.Platform{}.Mixin()
-	platform.Policy = privacy.NewPolicies(platformMixin[0], schema.Platform{})
-	platform.Hooks[0] = func(next ent.Mutator) ent.Mutator {
+	thirdauthMixin := schema.ThirdAuth{}.Mixin()
+	thirdauth.Policy = privacy.NewPolicies(thirdauthMixin[0], schema.ThirdAuth{})
+	thirdauth.Hooks[0] = func(next ent.Mutator) ent.Mutator {
 		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-			if err := platform.Policy.EvalMutation(ctx, m); err != nil {
+			if err := thirdauth.Policy.EvalMutation(ctx, m); err != nil {
 				return nil, err
 			}
 			return next.Mutate(ctx, m)
 		})
 	}
-	platformMixinFields0 := platformMixin[0].Fields()
-	_ = platformMixinFields0
-	platformFields := schema.Platform{}.Fields()
-	_ = platformFields
-	// platformDescCreatedAt is the schema descriptor for created_at field.
-	platformDescCreatedAt := platformMixinFields0[0].Descriptor()
-	// platform.DefaultCreatedAt holds the default value on creation for the created_at field.
-	platform.DefaultCreatedAt = platformDescCreatedAt.Default.(func() uint32)
-	// platformDescUpdatedAt is the schema descriptor for updated_at field.
-	platformDescUpdatedAt := platformMixinFields0[1].Descriptor()
-	// platform.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	platform.DefaultUpdatedAt = platformDescUpdatedAt.Default.(func() uint32)
-	// platform.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
-	platform.UpdateDefaultUpdatedAt = platformDescUpdatedAt.UpdateDefault.(func() uint32)
-	// platformDescDeletedAt is the schema descriptor for deleted_at field.
-	platformDescDeletedAt := platformMixinFields0[2].Descriptor()
-	// platform.DefaultDeletedAt holds the default value on creation for the deleted_at field.
-	platform.DefaultDeletedAt = platformDescDeletedAt.Default.(func() uint32)
-	// platformDescID is the schema descriptor for id field.
-	platformDescID := platformFields[0].Descriptor()
-	// platform.DefaultID holds the default value on creation for the id field.
-	platform.DefaultID = platformDescID.Default.(func() uuid.UUID)
+	thirdauthMixinFields0 := thirdauthMixin[0].Fields()
+	_ = thirdauthMixinFields0
+	thirdauthFields := schema.ThirdAuth{}.Fields()
+	_ = thirdauthFields
+	// thirdauthDescCreatedAt is the schema descriptor for created_at field.
+	thirdauthDescCreatedAt := thirdauthMixinFields0[0].Descriptor()
+	// thirdauth.DefaultCreatedAt holds the default value on creation for the created_at field.
+	thirdauth.DefaultCreatedAt = thirdauthDescCreatedAt.Default.(func() uint32)
+	// thirdauthDescUpdatedAt is the schema descriptor for updated_at field.
+	thirdauthDescUpdatedAt := thirdauthMixinFields0[1].Descriptor()
+	// thirdauth.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	thirdauth.DefaultUpdatedAt = thirdauthDescUpdatedAt.Default.(func() uint32)
+	// thirdauth.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	thirdauth.UpdateDefaultUpdatedAt = thirdauthDescUpdatedAt.UpdateDefault.(func() uint32)
+	// thirdauthDescDeletedAt is the schema descriptor for deleted_at field.
+	thirdauthDescDeletedAt := thirdauthMixinFields0[2].Descriptor()
+	// thirdauth.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	thirdauth.DefaultDeletedAt = thirdauthDescDeletedAt.Default.(func() uint32)
+	// thirdauthDescID is the schema descriptor for id field.
+	thirdauthDescID := thirdauthFields[0].Descriptor()
+	// thirdauth.DefaultID holds the default value on creation for the id field.
+	thirdauth.DefaultID = thirdauthDescID.Default.(func() uuid.UUID)
 }
 
 const (

@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/NpoolPlatform/third-login-gateway/pkg/db/ent/platform"
 	"github.com/NpoolPlatform/third-login-gateway/pkg/db/ent/predicate"
+	"github.com/NpoolPlatform/third-login-gateway/pkg/db/ent/thirdauth"
 	"github.com/google/uuid"
 
 	"entgo.io/ent"
@@ -24,45 +24,44 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypePlatform = "Platform"
+	TypeThirdAuth = "ThirdAuth"
 )
 
-// PlatformMutation represents an operation that mutates the Platform nodes in the graph.
-type PlatformMutation struct {
+// ThirdAuthMutation represents an operation that mutates the ThirdAuth nodes in the graph.
+type ThirdAuthMutation struct {
 	config
-	op                  Op
-	typ                 string
-	id                  *uuid.UUID
-	created_at          *uint32
-	addcreated_at       *int32
-	updated_at          *uint32
-	addupdated_at       *int32
-	deleted_at          *uint32
-	adddeleted_at       *int32
-	app_id              *uuid.UUID
-	platform            *string
-	platform_auth_url   *string
-	logo_url            *string
-	platform_app_key    *string
-	platform_app_secret *string
-	redirect_url        *string
-	clearedFields       map[string]struct{}
-	done                bool
-	oldValue            func(context.Context) (*Platform, error)
-	predicates          []predicate.Platform
+	op               Op
+	typ              string
+	id               *uuid.UUID
+	created_at       *uint32
+	addcreated_at    *int32
+	updated_at       *uint32
+	addupdated_at    *int32
+	deleted_at       *uint32
+	adddeleted_at    *int32
+	app_id           *uuid.UUID
+	third            *string
+	logo_url         *string
+	third_app_key    *string
+	third_app_secret *string
+	redirect_url     *string
+	clearedFields    map[string]struct{}
+	done             bool
+	oldValue         func(context.Context) (*ThirdAuth, error)
+	predicates       []predicate.ThirdAuth
 }
 
-var _ ent.Mutation = (*PlatformMutation)(nil)
+var _ ent.Mutation = (*ThirdAuthMutation)(nil)
 
-// platformOption allows management of the mutation configuration using functional options.
-type platformOption func(*PlatformMutation)
+// thirdauthOption allows management of the mutation configuration using functional options.
+type thirdauthOption func(*ThirdAuthMutation)
 
-// newPlatformMutation creates new mutation for the Platform entity.
-func newPlatformMutation(c config, op Op, opts ...platformOption) *PlatformMutation {
-	m := &PlatformMutation{
+// newThirdAuthMutation creates new mutation for the ThirdAuth entity.
+func newThirdAuthMutation(c config, op Op, opts ...thirdauthOption) *ThirdAuthMutation {
+	m := &ThirdAuthMutation{
 		config:        c,
 		op:            op,
-		typ:           TypePlatform,
+		typ:           TypeThirdAuth,
 		clearedFields: make(map[string]struct{}),
 	}
 	for _, opt := range opts {
@@ -71,20 +70,20 @@ func newPlatformMutation(c config, op Op, opts ...platformOption) *PlatformMutat
 	return m
 }
 
-// withPlatformID sets the ID field of the mutation.
-func withPlatformID(id uuid.UUID) platformOption {
-	return func(m *PlatformMutation) {
+// withThirdAuthID sets the ID field of the mutation.
+func withThirdAuthID(id uuid.UUID) thirdauthOption {
+	return func(m *ThirdAuthMutation) {
 		var (
 			err   error
 			once  sync.Once
-			value *Platform
+			value *ThirdAuth
 		)
-		m.oldValue = func(ctx context.Context) (*Platform, error) {
+		m.oldValue = func(ctx context.Context) (*ThirdAuth, error) {
 			once.Do(func() {
 				if m.done {
 					err = errors.New("querying old values post mutation is not allowed")
 				} else {
-					value, err = m.Client().Platform.Get(ctx, id)
+					value, err = m.Client().ThirdAuth.Get(ctx, id)
 				}
 			})
 			return value, err
@@ -93,10 +92,10 @@ func withPlatformID(id uuid.UUID) platformOption {
 	}
 }
 
-// withPlatform sets the old Platform of the mutation.
-func withPlatform(node *Platform) platformOption {
-	return func(m *PlatformMutation) {
-		m.oldValue = func(context.Context) (*Platform, error) {
+// withThirdAuth sets the old ThirdAuth of the mutation.
+func withThirdAuth(node *ThirdAuth) thirdauthOption {
+	return func(m *ThirdAuthMutation) {
+		m.oldValue = func(context.Context) (*ThirdAuth, error) {
 			return node, nil
 		}
 		m.id = &node.ID
@@ -105,7 +104,7 @@ func withPlatform(node *Platform) platformOption {
 
 // Client returns a new `ent.Client` from the mutation. If the mutation was
 // executed in a transaction (ent.Tx), a transactional client is returned.
-func (m PlatformMutation) Client() *Client {
+func (m ThirdAuthMutation) Client() *Client {
 	client := &Client{config: m.config}
 	client.init()
 	return client
@@ -113,7 +112,7 @@ func (m PlatformMutation) Client() *Client {
 
 // Tx returns an `ent.Tx` for mutations that were executed in transactions;
 // it returns an error otherwise.
-func (m PlatformMutation) Tx() (*Tx, error) {
+func (m ThirdAuthMutation) Tx() (*Tx, error) {
 	if _, ok := m.driver.(*txDriver); !ok {
 		return nil, errors.New("ent: mutation is not running in a transaction")
 	}
@@ -123,14 +122,14 @@ func (m PlatformMutation) Tx() (*Tx, error) {
 }
 
 // SetID sets the value of the id field. Note that this
-// operation is only accepted on creation of Platform entities.
-func (m *PlatformMutation) SetID(id uuid.UUID) {
+// operation is only accepted on creation of ThirdAuth entities.
+func (m *ThirdAuthMutation) SetID(id uuid.UUID) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *PlatformMutation) ID() (id uuid.UUID, exists bool) {
+func (m *ThirdAuthMutation) ID() (id uuid.UUID, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -141,7 +140,7 @@ func (m *PlatformMutation) ID() (id uuid.UUID, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *PlatformMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
+func (m *ThirdAuthMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
@@ -150,20 +149,20 @@ func (m *PlatformMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
-		return m.Client().Platform.Query().Where(m.predicates...).IDs(ctx)
+		return m.Client().ThirdAuth.Query().Where(m.predicates...).IDs(ctx)
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (m *PlatformMutation) SetCreatedAt(u uint32) {
+func (m *ThirdAuthMutation) SetCreatedAt(u uint32) {
 	m.created_at = &u
 	m.addcreated_at = nil
 }
 
 // CreatedAt returns the value of the "created_at" field in the mutation.
-func (m *PlatformMutation) CreatedAt() (r uint32, exists bool) {
+func (m *ThirdAuthMutation) CreatedAt() (r uint32, exists bool) {
 	v := m.created_at
 	if v == nil {
 		return
@@ -171,10 +170,10 @@ func (m *PlatformMutation) CreatedAt() (r uint32, exists bool) {
 	return *v, true
 }
 
-// OldCreatedAt returns the old "created_at" field's value of the Platform entity.
-// If the Platform object wasn't provided to the builder, the object is fetched from the database.
+// OldCreatedAt returns the old "created_at" field's value of the ThirdAuth entity.
+// If the ThirdAuth object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PlatformMutation) OldCreatedAt(ctx context.Context) (v uint32, err error) {
+func (m *ThirdAuthMutation) OldCreatedAt(ctx context.Context) (v uint32, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
 	}
@@ -189,7 +188,7 @@ func (m *PlatformMutation) OldCreatedAt(ctx context.Context) (v uint32, err erro
 }
 
 // AddCreatedAt adds u to the "created_at" field.
-func (m *PlatformMutation) AddCreatedAt(u int32) {
+func (m *ThirdAuthMutation) AddCreatedAt(u int32) {
 	if m.addcreated_at != nil {
 		*m.addcreated_at += u
 	} else {
@@ -198,7 +197,7 @@ func (m *PlatformMutation) AddCreatedAt(u int32) {
 }
 
 // AddedCreatedAt returns the value that was added to the "created_at" field in this mutation.
-func (m *PlatformMutation) AddedCreatedAt() (r int32, exists bool) {
+func (m *ThirdAuthMutation) AddedCreatedAt() (r int32, exists bool) {
 	v := m.addcreated_at
 	if v == nil {
 		return
@@ -207,19 +206,19 @@ func (m *PlatformMutation) AddedCreatedAt() (r int32, exists bool) {
 }
 
 // ResetCreatedAt resets all changes to the "created_at" field.
-func (m *PlatformMutation) ResetCreatedAt() {
+func (m *ThirdAuthMutation) ResetCreatedAt() {
 	m.created_at = nil
 	m.addcreated_at = nil
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (m *PlatformMutation) SetUpdatedAt(u uint32) {
+func (m *ThirdAuthMutation) SetUpdatedAt(u uint32) {
 	m.updated_at = &u
 	m.addupdated_at = nil
 }
 
 // UpdatedAt returns the value of the "updated_at" field in the mutation.
-func (m *PlatformMutation) UpdatedAt() (r uint32, exists bool) {
+func (m *ThirdAuthMutation) UpdatedAt() (r uint32, exists bool) {
 	v := m.updated_at
 	if v == nil {
 		return
@@ -227,10 +226,10 @@ func (m *PlatformMutation) UpdatedAt() (r uint32, exists bool) {
 	return *v, true
 }
 
-// OldUpdatedAt returns the old "updated_at" field's value of the Platform entity.
-// If the Platform object wasn't provided to the builder, the object is fetched from the database.
+// OldUpdatedAt returns the old "updated_at" field's value of the ThirdAuth entity.
+// If the ThirdAuth object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PlatformMutation) OldUpdatedAt(ctx context.Context) (v uint32, err error) {
+func (m *ThirdAuthMutation) OldUpdatedAt(ctx context.Context) (v uint32, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
 	}
@@ -245,7 +244,7 @@ func (m *PlatformMutation) OldUpdatedAt(ctx context.Context) (v uint32, err erro
 }
 
 // AddUpdatedAt adds u to the "updated_at" field.
-func (m *PlatformMutation) AddUpdatedAt(u int32) {
+func (m *ThirdAuthMutation) AddUpdatedAt(u int32) {
 	if m.addupdated_at != nil {
 		*m.addupdated_at += u
 	} else {
@@ -254,7 +253,7 @@ func (m *PlatformMutation) AddUpdatedAt(u int32) {
 }
 
 // AddedUpdatedAt returns the value that was added to the "updated_at" field in this mutation.
-func (m *PlatformMutation) AddedUpdatedAt() (r int32, exists bool) {
+func (m *ThirdAuthMutation) AddedUpdatedAt() (r int32, exists bool) {
 	v := m.addupdated_at
 	if v == nil {
 		return
@@ -263,19 +262,19 @@ func (m *PlatformMutation) AddedUpdatedAt() (r int32, exists bool) {
 }
 
 // ResetUpdatedAt resets all changes to the "updated_at" field.
-func (m *PlatformMutation) ResetUpdatedAt() {
+func (m *ThirdAuthMutation) ResetUpdatedAt() {
 	m.updated_at = nil
 	m.addupdated_at = nil
 }
 
 // SetDeletedAt sets the "deleted_at" field.
-func (m *PlatformMutation) SetDeletedAt(u uint32) {
+func (m *ThirdAuthMutation) SetDeletedAt(u uint32) {
 	m.deleted_at = &u
 	m.adddeleted_at = nil
 }
 
 // DeletedAt returns the value of the "deleted_at" field in the mutation.
-func (m *PlatformMutation) DeletedAt() (r uint32, exists bool) {
+func (m *ThirdAuthMutation) DeletedAt() (r uint32, exists bool) {
 	v := m.deleted_at
 	if v == nil {
 		return
@@ -283,10 +282,10 @@ func (m *PlatformMutation) DeletedAt() (r uint32, exists bool) {
 	return *v, true
 }
 
-// OldDeletedAt returns the old "deleted_at" field's value of the Platform entity.
-// If the Platform object wasn't provided to the builder, the object is fetched from the database.
+// OldDeletedAt returns the old "deleted_at" field's value of the ThirdAuth entity.
+// If the ThirdAuth object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PlatformMutation) OldDeletedAt(ctx context.Context) (v uint32, err error) {
+func (m *ThirdAuthMutation) OldDeletedAt(ctx context.Context) (v uint32, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
 	}
@@ -301,7 +300,7 @@ func (m *PlatformMutation) OldDeletedAt(ctx context.Context) (v uint32, err erro
 }
 
 // AddDeletedAt adds u to the "deleted_at" field.
-func (m *PlatformMutation) AddDeletedAt(u int32) {
+func (m *ThirdAuthMutation) AddDeletedAt(u int32) {
 	if m.adddeleted_at != nil {
 		*m.adddeleted_at += u
 	} else {
@@ -310,7 +309,7 @@ func (m *PlatformMutation) AddDeletedAt(u int32) {
 }
 
 // AddedDeletedAt returns the value that was added to the "deleted_at" field in this mutation.
-func (m *PlatformMutation) AddedDeletedAt() (r int32, exists bool) {
+func (m *ThirdAuthMutation) AddedDeletedAt() (r int32, exists bool) {
 	v := m.adddeleted_at
 	if v == nil {
 		return
@@ -319,18 +318,18 @@ func (m *PlatformMutation) AddedDeletedAt() (r int32, exists bool) {
 }
 
 // ResetDeletedAt resets all changes to the "deleted_at" field.
-func (m *PlatformMutation) ResetDeletedAt() {
+func (m *ThirdAuthMutation) ResetDeletedAt() {
 	m.deleted_at = nil
 	m.adddeleted_at = nil
 }
 
 // SetAppID sets the "app_id" field.
-func (m *PlatformMutation) SetAppID(u uuid.UUID) {
+func (m *ThirdAuthMutation) SetAppID(u uuid.UUID) {
 	m.app_id = &u
 }
 
 // AppID returns the value of the "app_id" field in the mutation.
-func (m *PlatformMutation) AppID() (r uuid.UUID, exists bool) {
+func (m *ThirdAuthMutation) AppID() (r uuid.UUID, exists bool) {
 	v := m.app_id
 	if v == nil {
 		return
@@ -338,10 +337,10 @@ func (m *PlatformMutation) AppID() (r uuid.UUID, exists bool) {
 	return *v, true
 }
 
-// OldAppID returns the old "app_id" field's value of the Platform entity.
-// If the Platform object wasn't provided to the builder, the object is fetched from the database.
+// OldAppID returns the old "app_id" field's value of the ThirdAuth entity.
+// If the ThirdAuth object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PlatformMutation) OldAppID(ctx context.Context) (v uuid.UUID, err error) {
+func (m *ThirdAuthMutation) OldAppID(ctx context.Context) (v uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldAppID is only allowed on UpdateOne operations")
 	}
@@ -356,89 +355,53 @@ func (m *PlatformMutation) OldAppID(ctx context.Context) (v uuid.UUID, err error
 }
 
 // ResetAppID resets all changes to the "app_id" field.
-func (m *PlatformMutation) ResetAppID() {
+func (m *ThirdAuthMutation) ResetAppID() {
 	m.app_id = nil
 }
 
-// SetPlatform sets the "platform" field.
-func (m *PlatformMutation) SetPlatform(s string) {
-	m.platform = &s
+// SetThird sets the "third" field.
+func (m *ThirdAuthMutation) SetThird(s string) {
+	m.third = &s
 }
 
-// Platform returns the value of the "platform" field in the mutation.
-func (m *PlatformMutation) Platform() (r string, exists bool) {
-	v := m.platform
+// Third returns the value of the "third" field in the mutation.
+func (m *ThirdAuthMutation) Third() (r string, exists bool) {
+	v := m.third
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldPlatform returns the old "platform" field's value of the Platform entity.
-// If the Platform object wasn't provided to the builder, the object is fetched from the database.
+// OldThird returns the old "third" field's value of the ThirdAuth entity.
+// If the ThirdAuth object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PlatformMutation) OldPlatform(ctx context.Context) (v string, err error) {
+func (m *ThirdAuthMutation) OldThird(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldPlatform is only allowed on UpdateOne operations")
+		return v, errors.New("OldThird is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldPlatform requires an ID field in the mutation")
+		return v, errors.New("OldThird requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldPlatform: %w", err)
+		return v, fmt.Errorf("querying old value for OldThird: %w", err)
 	}
-	return oldValue.Platform, nil
+	return oldValue.Third, nil
 }
 
-// ResetPlatform resets all changes to the "platform" field.
-func (m *PlatformMutation) ResetPlatform() {
-	m.platform = nil
-}
-
-// SetPlatformAuthURL sets the "platform_auth_url" field.
-func (m *PlatformMutation) SetPlatformAuthURL(s string) {
-	m.platform_auth_url = &s
-}
-
-// PlatformAuthURL returns the value of the "platform_auth_url" field in the mutation.
-func (m *PlatformMutation) PlatformAuthURL() (r string, exists bool) {
-	v := m.platform_auth_url
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldPlatformAuthURL returns the old "platform_auth_url" field's value of the Platform entity.
-// If the Platform object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PlatformMutation) OldPlatformAuthURL(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldPlatformAuthURL is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldPlatformAuthURL requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldPlatformAuthURL: %w", err)
-	}
-	return oldValue.PlatformAuthURL, nil
-}
-
-// ResetPlatformAuthURL resets all changes to the "platform_auth_url" field.
-func (m *PlatformMutation) ResetPlatformAuthURL() {
-	m.platform_auth_url = nil
+// ResetThird resets all changes to the "third" field.
+func (m *ThirdAuthMutation) ResetThird() {
+	m.third = nil
 }
 
 // SetLogoURL sets the "logo_url" field.
-func (m *PlatformMutation) SetLogoURL(s string) {
+func (m *ThirdAuthMutation) SetLogoURL(s string) {
 	m.logo_url = &s
 }
 
 // LogoURL returns the value of the "logo_url" field in the mutation.
-func (m *PlatformMutation) LogoURL() (r string, exists bool) {
+func (m *ThirdAuthMutation) LogoURL() (r string, exists bool) {
 	v := m.logo_url
 	if v == nil {
 		return
@@ -446,10 +409,10 @@ func (m *PlatformMutation) LogoURL() (r string, exists bool) {
 	return *v, true
 }
 
-// OldLogoURL returns the old "logo_url" field's value of the Platform entity.
-// If the Platform object wasn't provided to the builder, the object is fetched from the database.
+// OldLogoURL returns the old "logo_url" field's value of the ThirdAuth entity.
+// If the ThirdAuth object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PlatformMutation) OldLogoURL(ctx context.Context) (v string, err error) {
+func (m *ThirdAuthMutation) OldLogoURL(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldLogoURL is only allowed on UpdateOne operations")
 	}
@@ -464,89 +427,89 @@ func (m *PlatformMutation) OldLogoURL(ctx context.Context) (v string, err error)
 }
 
 // ResetLogoURL resets all changes to the "logo_url" field.
-func (m *PlatformMutation) ResetLogoURL() {
+func (m *ThirdAuthMutation) ResetLogoURL() {
 	m.logo_url = nil
 }
 
-// SetPlatformAppKey sets the "platform_app_key" field.
-func (m *PlatformMutation) SetPlatformAppKey(s string) {
-	m.platform_app_key = &s
+// SetThirdAppKey sets the "third_app_key" field.
+func (m *ThirdAuthMutation) SetThirdAppKey(s string) {
+	m.third_app_key = &s
 }
 
-// PlatformAppKey returns the value of the "platform_app_key" field in the mutation.
-func (m *PlatformMutation) PlatformAppKey() (r string, exists bool) {
-	v := m.platform_app_key
+// ThirdAppKey returns the value of the "third_app_key" field in the mutation.
+func (m *ThirdAuthMutation) ThirdAppKey() (r string, exists bool) {
+	v := m.third_app_key
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldPlatformAppKey returns the old "platform_app_key" field's value of the Platform entity.
-// If the Platform object wasn't provided to the builder, the object is fetched from the database.
+// OldThirdAppKey returns the old "third_app_key" field's value of the ThirdAuth entity.
+// If the ThirdAuth object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PlatformMutation) OldPlatformAppKey(ctx context.Context) (v string, err error) {
+func (m *ThirdAuthMutation) OldThirdAppKey(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldPlatformAppKey is only allowed on UpdateOne operations")
+		return v, errors.New("OldThirdAppKey is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldPlatformAppKey requires an ID field in the mutation")
+		return v, errors.New("OldThirdAppKey requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldPlatformAppKey: %w", err)
+		return v, fmt.Errorf("querying old value for OldThirdAppKey: %w", err)
 	}
-	return oldValue.PlatformAppKey, nil
+	return oldValue.ThirdAppKey, nil
 }
 
-// ResetPlatformAppKey resets all changes to the "platform_app_key" field.
-func (m *PlatformMutation) ResetPlatformAppKey() {
-	m.platform_app_key = nil
+// ResetThirdAppKey resets all changes to the "third_app_key" field.
+func (m *ThirdAuthMutation) ResetThirdAppKey() {
+	m.third_app_key = nil
 }
 
-// SetPlatformAppSecret sets the "platform_app_secret" field.
-func (m *PlatformMutation) SetPlatformAppSecret(s string) {
-	m.platform_app_secret = &s
+// SetThirdAppSecret sets the "third_app_secret" field.
+func (m *ThirdAuthMutation) SetThirdAppSecret(s string) {
+	m.third_app_secret = &s
 }
 
-// PlatformAppSecret returns the value of the "platform_app_secret" field in the mutation.
-func (m *PlatformMutation) PlatformAppSecret() (r string, exists bool) {
-	v := m.platform_app_secret
+// ThirdAppSecret returns the value of the "third_app_secret" field in the mutation.
+func (m *ThirdAuthMutation) ThirdAppSecret() (r string, exists bool) {
+	v := m.third_app_secret
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldPlatformAppSecret returns the old "platform_app_secret" field's value of the Platform entity.
-// If the Platform object wasn't provided to the builder, the object is fetched from the database.
+// OldThirdAppSecret returns the old "third_app_secret" field's value of the ThirdAuth entity.
+// If the ThirdAuth object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PlatformMutation) OldPlatformAppSecret(ctx context.Context) (v string, err error) {
+func (m *ThirdAuthMutation) OldThirdAppSecret(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldPlatformAppSecret is only allowed on UpdateOne operations")
+		return v, errors.New("OldThirdAppSecret is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldPlatformAppSecret requires an ID field in the mutation")
+		return v, errors.New("OldThirdAppSecret requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldPlatformAppSecret: %w", err)
+		return v, fmt.Errorf("querying old value for OldThirdAppSecret: %w", err)
 	}
-	return oldValue.PlatformAppSecret, nil
+	return oldValue.ThirdAppSecret, nil
 }
 
-// ResetPlatformAppSecret resets all changes to the "platform_app_secret" field.
-func (m *PlatformMutation) ResetPlatformAppSecret() {
-	m.platform_app_secret = nil
+// ResetThirdAppSecret resets all changes to the "third_app_secret" field.
+func (m *ThirdAuthMutation) ResetThirdAppSecret() {
+	m.third_app_secret = nil
 }
 
 // SetRedirectURL sets the "redirect_url" field.
-func (m *PlatformMutation) SetRedirectURL(s string) {
+func (m *ThirdAuthMutation) SetRedirectURL(s string) {
 	m.redirect_url = &s
 }
 
 // RedirectURL returns the value of the "redirect_url" field in the mutation.
-func (m *PlatformMutation) RedirectURL() (r string, exists bool) {
+func (m *ThirdAuthMutation) RedirectURL() (r string, exists bool) {
 	v := m.redirect_url
 	if v == nil {
 		return
@@ -554,10 +517,10 @@ func (m *PlatformMutation) RedirectURL() (r string, exists bool) {
 	return *v, true
 }
 
-// OldRedirectURL returns the old "redirect_url" field's value of the Platform entity.
-// If the Platform object wasn't provided to the builder, the object is fetched from the database.
+// OldRedirectURL returns the old "redirect_url" field's value of the ThirdAuth entity.
+// If the ThirdAuth object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PlatformMutation) OldRedirectURL(ctx context.Context) (v string, err error) {
+func (m *ThirdAuthMutation) OldRedirectURL(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldRedirectURL is only allowed on UpdateOne operations")
 	}
@@ -572,59 +535,56 @@ func (m *PlatformMutation) OldRedirectURL(ctx context.Context) (v string, err er
 }
 
 // ResetRedirectURL resets all changes to the "redirect_url" field.
-func (m *PlatformMutation) ResetRedirectURL() {
+func (m *ThirdAuthMutation) ResetRedirectURL() {
 	m.redirect_url = nil
 }
 
-// Where appends a list predicates to the PlatformMutation builder.
-func (m *PlatformMutation) Where(ps ...predicate.Platform) {
+// Where appends a list predicates to the ThirdAuthMutation builder.
+func (m *ThirdAuthMutation) Where(ps ...predicate.ThirdAuth) {
 	m.predicates = append(m.predicates, ps...)
 }
 
 // Op returns the operation name.
-func (m *PlatformMutation) Op() Op {
+func (m *ThirdAuthMutation) Op() Op {
 	return m.op
 }
 
-// Type returns the node type of this mutation (Platform).
-func (m *PlatformMutation) Type() string {
+// Type returns the node type of this mutation (ThirdAuth).
+func (m *ThirdAuthMutation) Type() string {
 	return m.typ
 }
 
 // Fields returns all fields that were changed during this mutation. Note that in
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
-func (m *PlatformMutation) Fields() []string {
-	fields := make([]string, 0, 10)
+func (m *ThirdAuthMutation) Fields() []string {
+	fields := make([]string, 0, 9)
 	if m.created_at != nil {
-		fields = append(fields, platform.FieldCreatedAt)
+		fields = append(fields, thirdauth.FieldCreatedAt)
 	}
 	if m.updated_at != nil {
-		fields = append(fields, platform.FieldUpdatedAt)
+		fields = append(fields, thirdauth.FieldUpdatedAt)
 	}
 	if m.deleted_at != nil {
-		fields = append(fields, platform.FieldDeletedAt)
+		fields = append(fields, thirdauth.FieldDeletedAt)
 	}
 	if m.app_id != nil {
-		fields = append(fields, platform.FieldAppID)
+		fields = append(fields, thirdauth.FieldAppID)
 	}
-	if m.platform != nil {
-		fields = append(fields, platform.FieldPlatform)
-	}
-	if m.platform_auth_url != nil {
-		fields = append(fields, platform.FieldPlatformAuthURL)
+	if m.third != nil {
+		fields = append(fields, thirdauth.FieldThird)
 	}
 	if m.logo_url != nil {
-		fields = append(fields, platform.FieldLogoURL)
+		fields = append(fields, thirdauth.FieldLogoURL)
 	}
-	if m.platform_app_key != nil {
-		fields = append(fields, platform.FieldPlatformAppKey)
+	if m.third_app_key != nil {
+		fields = append(fields, thirdauth.FieldThirdAppKey)
 	}
-	if m.platform_app_secret != nil {
-		fields = append(fields, platform.FieldPlatformAppSecret)
+	if m.third_app_secret != nil {
+		fields = append(fields, thirdauth.FieldThirdAppSecret)
 	}
 	if m.redirect_url != nil {
-		fields = append(fields, platform.FieldRedirectURL)
+		fields = append(fields, thirdauth.FieldRedirectURL)
 	}
 	return fields
 }
@@ -632,27 +592,25 @@ func (m *PlatformMutation) Fields() []string {
 // Field returns the value of a field with the given name. The second boolean
 // return value indicates that this field was not set, or was not defined in the
 // schema.
-func (m *PlatformMutation) Field(name string) (ent.Value, bool) {
+func (m *ThirdAuthMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case platform.FieldCreatedAt:
+	case thirdauth.FieldCreatedAt:
 		return m.CreatedAt()
-	case platform.FieldUpdatedAt:
+	case thirdauth.FieldUpdatedAt:
 		return m.UpdatedAt()
-	case platform.FieldDeletedAt:
+	case thirdauth.FieldDeletedAt:
 		return m.DeletedAt()
-	case platform.FieldAppID:
+	case thirdauth.FieldAppID:
 		return m.AppID()
-	case platform.FieldPlatform:
-		return m.Platform()
-	case platform.FieldPlatformAuthURL:
-		return m.PlatformAuthURL()
-	case platform.FieldLogoURL:
+	case thirdauth.FieldThird:
+		return m.Third()
+	case thirdauth.FieldLogoURL:
 		return m.LogoURL()
-	case platform.FieldPlatformAppKey:
-		return m.PlatformAppKey()
-	case platform.FieldPlatformAppSecret:
-		return m.PlatformAppSecret()
-	case platform.FieldRedirectURL:
+	case thirdauth.FieldThirdAppKey:
+		return m.ThirdAppKey()
+	case thirdauth.FieldThirdAppSecret:
+		return m.ThirdAppSecret()
+	case thirdauth.FieldRedirectURL:
 		return m.RedirectURL()
 	}
 	return nil, false
@@ -661,101 +619,92 @@ func (m *PlatformMutation) Field(name string) (ent.Value, bool) {
 // OldField returns the old value of the field from the database. An error is
 // returned if the mutation operation is not UpdateOne, or the query to the
 // database failed.
-func (m *PlatformMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+func (m *ThirdAuthMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case platform.FieldCreatedAt:
+	case thirdauth.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
-	case platform.FieldUpdatedAt:
+	case thirdauth.FieldUpdatedAt:
 		return m.OldUpdatedAt(ctx)
-	case platform.FieldDeletedAt:
+	case thirdauth.FieldDeletedAt:
 		return m.OldDeletedAt(ctx)
-	case platform.FieldAppID:
+	case thirdauth.FieldAppID:
 		return m.OldAppID(ctx)
-	case platform.FieldPlatform:
-		return m.OldPlatform(ctx)
-	case platform.FieldPlatformAuthURL:
-		return m.OldPlatformAuthURL(ctx)
-	case platform.FieldLogoURL:
+	case thirdauth.FieldThird:
+		return m.OldThird(ctx)
+	case thirdauth.FieldLogoURL:
 		return m.OldLogoURL(ctx)
-	case platform.FieldPlatformAppKey:
-		return m.OldPlatformAppKey(ctx)
-	case platform.FieldPlatformAppSecret:
-		return m.OldPlatformAppSecret(ctx)
-	case platform.FieldRedirectURL:
+	case thirdauth.FieldThirdAppKey:
+		return m.OldThirdAppKey(ctx)
+	case thirdauth.FieldThirdAppSecret:
+		return m.OldThirdAppSecret(ctx)
+	case thirdauth.FieldRedirectURL:
 		return m.OldRedirectURL(ctx)
 	}
-	return nil, fmt.Errorf("unknown Platform field %s", name)
+	return nil, fmt.Errorf("unknown ThirdAuth field %s", name)
 }
 
 // SetField sets the value of a field with the given name. It returns an error if
 // the field is not defined in the schema, or if the type mismatched the field
 // type.
-func (m *PlatformMutation) SetField(name string, value ent.Value) error {
+func (m *ThirdAuthMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case platform.FieldCreatedAt:
+	case thirdauth.FieldCreatedAt:
 		v, ok := value.(uint32)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCreatedAt(v)
 		return nil
-	case platform.FieldUpdatedAt:
+	case thirdauth.FieldUpdatedAt:
 		v, ok := value.(uint32)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUpdatedAt(v)
 		return nil
-	case platform.FieldDeletedAt:
+	case thirdauth.FieldDeletedAt:
 		v, ok := value.(uint32)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDeletedAt(v)
 		return nil
-	case platform.FieldAppID:
+	case thirdauth.FieldAppID:
 		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetAppID(v)
 		return nil
-	case platform.FieldPlatform:
+	case thirdauth.FieldThird:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetPlatform(v)
+		m.SetThird(v)
 		return nil
-	case platform.FieldPlatformAuthURL:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetPlatformAuthURL(v)
-		return nil
-	case platform.FieldLogoURL:
+	case thirdauth.FieldLogoURL:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetLogoURL(v)
 		return nil
-	case platform.FieldPlatformAppKey:
+	case thirdauth.FieldThirdAppKey:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetPlatformAppKey(v)
+		m.SetThirdAppKey(v)
 		return nil
-	case platform.FieldPlatformAppSecret:
+	case thirdauth.FieldThirdAppSecret:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetPlatformAppSecret(v)
+		m.SetThirdAppSecret(v)
 		return nil
-	case platform.FieldRedirectURL:
+	case thirdauth.FieldRedirectURL:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
@@ -763,21 +712,21 @@ func (m *PlatformMutation) SetField(name string, value ent.Value) error {
 		m.SetRedirectURL(v)
 		return nil
 	}
-	return fmt.Errorf("unknown Platform field %s", name)
+	return fmt.Errorf("unknown ThirdAuth field %s", name)
 }
 
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
-func (m *PlatformMutation) AddedFields() []string {
+func (m *ThirdAuthMutation) AddedFields() []string {
 	var fields []string
 	if m.addcreated_at != nil {
-		fields = append(fields, platform.FieldCreatedAt)
+		fields = append(fields, thirdauth.FieldCreatedAt)
 	}
 	if m.addupdated_at != nil {
-		fields = append(fields, platform.FieldUpdatedAt)
+		fields = append(fields, thirdauth.FieldUpdatedAt)
 	}
 	if m.adddeleted_at != nil {
-		fields = append(fields, platform.FieldDeletedAt)
+		fields = append(fields, thirdauth.FieldDeletedAt)
 	}
 	return fields
 }
@@ -785,13 +734,13 @@ func (m *PlatformMutation) AddedFields() []string {
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
-func (m *PlatformMutation) AddedField(name string) (ent.Value, bool) {
+func (m *ThirdAuthMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
-	case platform.FieldCreatedAt:
+	case thirdauth.FieldCreatedAt:
 		return m.AddedCreatedAt()
-	case platform.FieldUpdatedAt:
+	case thirdauth.FieldUpdatedAt:
 		return m.AddedUpdatedAt()
-	case platform.FieldDeletedAt:
+	case thirdauth.FieldDeletedAt:
 		return m.AddedDeletedAt()
 	}
 	return nil, false
@@ -800,23 +749,23 @@ func (m *PlatformMutation) AddedField(name string) (ent.Value, bool) {
 // AddField adds the value to the field with the given name. It returns an error if
 // the field is not defined in the schema, or if the type mismatched the field
 // type.
-func (m *PlatformMutation) AddField(name string, value ent.Value) error {
+func (m *ThirdAuthMutation) AddField(name string, value ent.Value) error {
 	switch name {
-	case platform.FieldCreatedAt:
+	case thirdauth.FieldCreatedAt:
 		v, ok := value.(int32)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddCreatedAt(v)
 		return nil
-	case platform.FieldUpdatedAt:
+	case thirdauth.FieldUpdatedAt:
 		v, ok := value.(int32)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddUpdatedAt(v)
 		return nil
-	case platform.FieldDeletedAt:
+	case thirdauth.FieldDeletedAt:
 		v, ok := value.(int32)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
@@ -824,110 +773,107 @@ func (m *PlatformMutation) AddField(name string, value ent.Value) error {
 		m.AddDeletedAt(v)
 		return nil
 	}
-	return fmt.Errorf("unknown Platform numeric field %s", name)
+	return fmt.Errorf("unknown ThirdAuth numeric field %s", name)
 }
 
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
-func (m *PlatformMutation) ClearedFields() []string {
+func (m *ThirdAuthMutation) ClearedFields() []string {
 	return nil
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
 // cleared in this mutation.
-func (m *PlatformMutation) FieldCleared(name string) bool {
+func (m *ThirdAuthMutation) FieldCleared(name string) bool {
 	_, ok := m.clearedFields[name]
 	return ok
 }
 
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
-func (m *PlatformMutation) ClearField(name string) error {
-	return fmt.Errorf("unknown Platform nullable field %s", name)
+func (m *ThirdAuthMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown ThirdAuth nullable field %s", name)
 }
 
 // ResetField resets all changes in the mutation for the field with the given name.
 // It returns an error if the field is not defined in the schema.
-func (m *PlatformMutation) ResetField(name string) error {
+func (m *ThirdAuthMutation) ResetField(name string) error {
 	switch name {
-	case platform.FieldCreatedAt:
+	case thirdauth.FieldCreatedAt:
 		m.ResetCreatedAt()
 		return nil
-	case platform.FieldUpdatedAt:
+	case thirdauth.FieldUpdatedAt:
 		m.ResetUpdatedAt()
 		return nil
-	case platform.FieldDeletedAt:
+	case thirdauth.FieldDeletedAt:
 		m.ResetDeletedAt()
 		return nil
-	case platform.FieldAppID:
+	case thirdauth.FieldAppID:
 		m.ResetAppID()
 		return nil
-	case platform.FieldPlatform:
-		m.ResetPlatform()
+	case thirdauth.FieldThird:
+		m.ResetThird()
 		return nil
-	case platform.FieldPlatformAuthURL:
-		m.ResetPlatformAuthURL()
-		return nil
-	case platform.FieldLogoURL:
+	case thirdauth.FieldLogoURL:
 		m.ResetLogoURL()
 		return nil
-	case platform.FieldPlatformAppKey:
-		m.ResetPlatformAppKey()
+	case thirdauth.FieldThirdAppKey:
+		m.ResetThirdAppKey()
 		return nil
-	case platform.FieldPlatformAppSecret:
-		m.ResetPlatformAppSecret()
+	case thirdauth.FieldThirdAppSecret:
+		m.ResetThirdAppSecret()
 		return nil
-	case platform.FieldRedirectURL:
+	case thirdauth.FieldRedirectURL:
 		m.ResetRedirectURL()
 		return nil
 	}
-	return fmt.Errorf("unknown Platform field %s", name)
+	return fmt.Errorf("unknown ThirdAuth field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
-func (m *PlatformMutation) AddedEdges() []string {
+func (m *ThirdAuthMutation) AddedEdges() []string {
 	edges := make([]string, 0, 0)
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
-func (m *PlatformMutation) AddedIDs(name string) []ent.Value {
+func (m *ThirdAuthMutation) AddedIDs(name string) []ent.Value {
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
-func (m *PlatformMutation) RemovedEdges() []string {
+func (m *ThirdAuthMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 0)
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
-func (m *PlatformMutation) RemovedIDs(name string) []ent.Value {
+func (m *ThirdAuthMutation) RemovedIDs(name string) []ent.Value {
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
-func (m *PlatformMutation) ClearedEdges() []string {
+func (m *ThirdAuthMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 0)
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
-func (m *PlatformMutation) EdgeCleared(name string) bool {
+func (m *ThirdAuthMutation) EdgeCleared(name string) bool {
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
-func (m *PlatformMutation) ClearEdge(name string) error {
-	return fmt.Errorf("unknown Platform unique edge %s", name)
+func (m *ThirdAuthMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown ThirdAuth unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
-func (m *PlatformMutation) ResetEdge(name string) error {
-	return fmt.Errorf("unknown Platform edge %s", name)
+func (m *ThirdAuthMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown ThirdAuth edge %s", name)
 }

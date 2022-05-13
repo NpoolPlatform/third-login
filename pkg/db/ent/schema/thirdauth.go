@@ -7,36 +7,35 @@ import (
 	"github.com/google/uuid"
 )
 
-// Platform holds the schema definition for the Platform entity.
-type Platform struct {
+// ThirdAuth holds the schema definition for the ThirdAuth entity.
+type ThirdAuth struct {
 	ent.Schema
 }
 
-func (Platform) Mixin() []ent.Mixin {
+func (ThirdAuth) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		mixin.TimeMixin{},
 	}
 }
 
-func (Platform) Fields() []ent.Field {
+func (ThirdAuth) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("id", uuid.UUID{}).
 			Default(uuid.New).
 			Unique(),
 		field.UUID("app_id", uuid.UUID{}),
-		field.String("platform"),
-		field.String("platform_auth_url"),
+		field.String("third"),
 		field.String("logo_url"),
-		field.String("platform_app_key"),
-		field.String("platform_app_secret"),
+		field.String("third_app_key"),
+		field.String("third_app_secret"),
 		field.String("redirect_url"),
 	}
 }
 
-func (Platform) Edges() []ent.Edge {
+func (ThirdAuth) Edges() []ent.Edge {
 	return nil
 }
 
-func (Platform) Indexes() []ent.Index {
+func (ThirdAuth) Indexes() []ent.Index {
 	return []ent.Index{}
 }
