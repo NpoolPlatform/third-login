@@ -6,21 +6,20 @@ import (
 	"errors"
 	"os"
 
+	appuserconst "github.com/NpoolPlatform/appuser-manager/pkg/const"
 	appusermgrpb "github.com/NpoolPlatform/message/npool/appusermgr"
 	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
 )
 
-type GoogleAuth struct{}
-
-var (
-	googleAuthorizeURL = "https://accounts.google.com/o/oauth2/v2/auth"
-	googleTokenURL     = "https://oauth2.googleapis.com/token"
-	googleUserInfoURL  = "https://www.googleapis.com/oauth2/v2/userinfo"
-)
+type GoogleAuth struct {
+	GoogleAuthorizeURL string
+	GoogleTokenURL     string
+	GoogleUserInfoURL  string
+}
 
 func (a *GoogleAuth) GetRedirectURL(config *Config) (string, error) {
-	url := NewURLBuilder(googleAuthorizeURL).
+	url := NewURLBuilder(a.GoogleAuthorizeURL).
 		AddParam("client_id", config.ClientID).
 		AddParam("redirect_uri", config.RedirectURL).
 		AddParam("response_type", "code").
@@ -31,7 +30,7 @@ func (a *GoogleAuth) GetRedirectURL(config *Config) (string, error) {
 }
 
 func (a *GoogleAuth) GetAccessToken(ctx context.Context, code string, config *Config) (string, error) {
-	url := NewURLBuilder(googleTokenURL).
+	url := NewURLBuilder(a.GoogleTokenURL).
 		AddParam("client_id", config.ClientID).
 		AddParam("client_secret", config.ClientSecret).
 		AddParam("grant_type", "authorization_code").
@@ -65,9 +64,9 @@ func (a *GoogleAuth) GetUserInfo(ctx context.Context, code string, config *Confi
 	if err != nil {
 		return &appusermgrpb.AppUserThird{}, err
 	}
-	url := googleUserInfoURL
+	url := a.GoogleUserInfoURL
 	client := resty.New()
-	client.SetProxy(os.Getenv("ENV_CURRENCY_REQUEST_PROXY")) // update to ENV
+	client.SetProxy(os.Getenv("ENV_CURRENCY_REQUEST_PROXY"))
 	resp, err := client.R().
 		SetContext(ctx).
 		SetHeader("Content-Type", "application/json").
@@ -88,6 +87,7 @@ func (a *GoogleAuth) GetUserInfo(ctx context.Context, code string, config *Confi
 		ThirdUserId:      m["id"],
 		ThirdUserName:    m["email"],
 		ThirdUserPicture: m["picture"],
+		Third:            appuserconst.ThirdGoogle,
 		ThirdExtra:       string(resp.Body()),
 	}, nil
 }

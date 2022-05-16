@@ -15,12 +15,12 @@ import (
 func (s *Server) AuthLogin(ctx context.Context, in *npool.AuthLoginRequest) (*npool.AuthLoginResponse, error) {
 	if in.GetCode() == "" {
 		logger.Sugar().Error("auth login error code is empty")
-		return nil, status.Error(codes.InvalidArgument, "Code empty")
+		return nil, status.Error(codes.InvalidArgument, "code empty")
 	}
 
 	if in.GetThird() == "" {
 		logger.Sugar().Error("auth login error third is empty")
-		return nil, status.Error(codes.InvalidArgument, "Platform empty")
+		return nil, status.Error(codes.InvalidArgument, "third empty")
 	}
 
 	if _, err := uuid.Parse(in.AppID); err != nil {

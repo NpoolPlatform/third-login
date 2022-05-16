@@ -3,6 +3,7 @@ package authlogin
 import (
 	"context"
 	"fmt"
+
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	appusermgrpb "github.com/NpoolPlatform/message/npool/appusermgr"
@@ -24,7 +25,7 @@ func AuthLogin(ctx context.Context, in *npool.AuthLoginRequest) (*npool.AuthLogi
 
 	infos, _, err := schema.Rows(ctx, cruder.NewConds().
 		WithCond(constant.ThirdAuthFieldAppID, cruder.EQ, in.GetAppID()).
-		WithCond(constant.ThirdAuthFieldThird, cruder.EQ, in.GetThird()), 0, 100)
+		WithCond(constant.ThirdAuthFieldThird, cruder.EQ, in.GetThird()), 0, 0)
 	if err != nil {
 		logger.Sugar().Errorf("fail get third auth: %v", err)
 		return &npool.AuthLoginResponse{}, status.Error(codes.Internal, err.Error())
@@ -34,15 +35,16 @@ func AuthLogin(ctx context.Context, in *npool.AuthLoginRequest) (*npool.AuthLogi
 	}
 
 	conf := &oauth.Config{ClientID: infos[0].ThirdAppKey, ClientSecret: infos[0].ThirdAppSecret, RedirectURL: infos[0].RedirectUrl}
-	platform, ok := oauth.ThirdMap[in.GetThird()]
+	third, ok := oauth.ThirdMap[in.GetThird()]
 	if !ok {
 		return &npool.AuthLoginResponse{}, fmt.Errorf("login method does not exist")
 	}
-	thirdMethod := oauth.NewContext(platform)
+	thirdMethod := oauth.NewContext(third)
 	thirdUser, err := thirdMethod.GetUserInfo(ctx, in.GetCode(), conf)
 	if err != nil {
 		return &npool.AuthLoginResponse{}, err
 	}
+	thirdUser.AppID = in.GetAppID()
 
 	var tUser *appusermgrpb.AppUserThird
 	tUser, err = grpc2.GetAppUserThirdByAppThird(ctx, &appusermgrpb.GetAppUserThirdByAppThirdRequest{

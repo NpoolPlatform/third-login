@@ -2,7 +2,54 @@
 
 package runtime
 
-// The schema-stitching logic is generated in github.com/NpoolPlatform/third-login-gateway/pkg/db/ent/runtime.go
+import (
+	"context"
+
+	"github.com/NpoolPlatform/third-login-gateway/pkg/db/ent/schema"
+	"github.com/NpoolPlatform/third-login-gateway/pkg/db/ent/thirdauth"
+	"github.com/google/uuid"
+
+	"entgo.io/ent"
+	"entgo.io/ent/privacy"
+)
+
+// The init function reads all schema descriptors with runtime code
+// (default values, validators, hooks and policies) and stitches it
+// to their package variables.
+func init() {
+	thirdauthMixin := schema.ThirdAuth{}.Mixin()
+	thirdauth.Policy = privacy.NewPolicies(thirdauthMixin[0], schema.ThirdAuth{})
+	thirdauth.Hooks[0] = func(next ent.Mutator) ent.Mutator {
+		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+			if err := thirdauth.Policy.EvalMutation(ctx, m); err != nil {
+				return nil, err
+			}
+			return next.Mutate(ctx, m)
+		})
+	}
+	thirdauthMixinFields0 := thirdauthMixin[0].Fields()
+	_ = thirdauthMixinFields0
+	thirdauthFields := schema.ThirdAuth{}.Fields()
+	_ = thirdauthFields
+	// thirdauthDescCreatedAt is the schema descriptor for created_at field.
+	thirdauthDescCreatedAt := thirdauthMixinFields0[0].Descriptor()
+	// thirdauth.DefaultCreatedAt holds the default value on creation for the created_at field.
+	thirdauth.DefaultCreatedAt = thirdauthDescCreatedAt.Default.(func() uint32)
+	// thirdauthDescUpdatedAt is the schema descriptor for updated_at field.
+	thirdauthDescUpdatedAt := thirdauthMixinFields0[1].Descriptor()
+	// thirdauth.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	thirdauth.DefaultUpdatedAt = thirdauthDescUpdatedAt.Default.(func() uint32)
+	// thirdauth.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	thirdauth.UpdateDefaultUpdatedAt = thirdauthDescUpdatedAt.UpdateDefault.(func() uint32)
+	// thirdauthDescDeletedAt is the schema descriptor for deleted_at field.
+	thirdauthDescDeletedAt := thirdauthMixinFields0[2].Descriptor()
+	// thirdauth.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	thirdauth.DefaultDeletedAt = thirdauthDescDeletedAt.Default.(func() uint32)
+	// thirdauthDescID is the schema descriptor for id field.
+	thirdauthDescID := thirdauthFields[0].Descriptor()
+	// thirdauth.DefaultID holds the default value on creation for the id field.
+	thirdauth.DefaultID = thirdauthDescID.Default.(func() uuid.UUID)
+}
 
 const (
 	Version = "v0.10.1"                                         // Version of ent codegen.

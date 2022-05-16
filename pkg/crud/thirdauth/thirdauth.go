@@ -3,13 +3,13 @@ package thirdauth
 import (
 	"context"
 	"fmt"
-	"github.com/NpoolPlatform/third-login-gateway/pkg/db/ent/thirdauth"
 
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	npool "github.com/NpoolPlatform/message/npool/third-login-gateway"
 	constant "github.com/NpoolPlatform/third-login-gateway/pkg/const"
 	"github.com/NpoolPlatform/third-login-gateway/pkg/db"
 	"github.com/NpoolPlatform/third-login-gateway/pkg/db/ent"
+	"github.com/NpoolPlatform/third-login-gateway/pkg/db/ent/thirdauth"
 	"github.com/google/uuid"
 )
 
@@ -56,7 +56,7 @@ func (s *ThirdAuth) Create(ctx context.Context, in *npool.ThirdAuth) (*npool.Thi
 		return err
 	})
 	if err != nil {
-		return nil, fmt.Errorf("fail create stock: %v", err)
+		return nil, fmt.Errorf("fail create third auth: %v", err)
 	}
 
 	return s.rowToObject(info), nil
@@ -95,7 +95,7 @@ func (s *ThirdAuth) Rows(ctx context.Context, conds cruder.Conds, offset, limit 
 
 		total, err = stm.Count(_ctx)
 		if err != nil {
-			return fmt.Errorf("fail count platform: %v", err)
+			return fmt.Errorf("fail count third auth: %v", err)
 		}
 
 		rows, err = stm.
@@ -104,13 +104,13 @@ func (s *ThirdAuth) Rows(ctx context.Context, conds cruder.Conds, offset, limit 
 			Limit(limit).
 			All(_ctx)
 		if err != nil {
-			return fmt.Errorf("fail query platform: %v", err)
+			return fmt.Errorf("fail query third auth: %v", err)
 		}
 
 		return nil
 	})
 	if err != nil {
-		return nil, 0, fmt.Errorf("fail get platform: %v", err)
+		return nil, 0, fmt.Errorf("fail get third auth: %v", err)
 	}
 
 	infos := []*npool.ThirdAuth{}
@@ -121,7 +121,7 @@ func (s *ThirdAuth) Rows(ctx context.Context, conds cruder.Conds, offset, limit 
 	return infos, total, nil
 }
 
-func (s *ThirdAuth) queryFromConds(conds cruder.Conds) (*ent.ThirdAuthQuery, error) { //nolint
+func (s *ThirdAuth) queryFromConds(conds cruder.Conds) (*ent.ThirdAuthQuery, error) {
 	stm := s.Tx.ThirdAuth.Query()
 	for k, v := range conds {
 		switch k {
@@ -134,17 +134,17 @@ func (s *ThirdAuth) queryFromConds(conds cruder.Conds) (*ent.ThirdAuthQuery, err
 		case constant.ThirdAuthFieldAppID:
 			val, err := cruder.AnyTypeUUID(v.Val)
 			if err != nil {
-				return nil, fmt.Errorf("invalid value type: %v", err)
+				return nil, fmt.Errorf("invalid value app id: %v", err)
 			}
 			stm = stm.Where(thirdauth.AppID(val))
 		case constant.ThirdAuthFieldThird:
 			val, err := cruder.AnyTypeString(v.Val)
 			if err != nil {
-				return nil, fmt.Errorf("invalid value type: %v", err)
+				return nil, fmt.Errorf("invalid value third: %v", err)
 			}
 			stm = stm.Where(thirdauth.Third(val))
 		default:
-			return nil, fmt.Errorf("invalid platform field")
+			return nil, fmt.Errorf("invalid third auth field")
 		}
 	}
 

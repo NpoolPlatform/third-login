@@ -130,7 +130,9 @@ func (tau *ThirdAuthUpdate) Save(ctx context.Context) (int, error) {
 		err      error
 		affected int
 	)
-	tau.defaults()
+	if err := tau.defaults(); err != nil {
+		return 0, err
+	}
 	if len(tau.hooks) == 0 {
 		affected, err = tau.sqlSave(ctx)
 	} else {
@@ -180,11 +182,15 @@ func (tau *ThirdAuthUpdate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (tau *ThirdAuthUpdate) defaults() {
+func (tau *ThirdAuthUpdate) defaults() error {
 	if _, ok := tau.mutation.UpdatedAt(); !ok {
+		if thirdauth.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized thirdauth.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := thirdauth.UpdateDefaultUpdatedAt()
 		tau.mutation.SetUpdatedAt(v)
 	}
+	return nil
 }
 
 func (tau *ThirdAuthUpdate) sqlSave(ctx context.Context) (n int, err error) {
@@ -417,7 +423,9 @@ func (tauo *ThirdAuthUpdateOne) Save(ctx context.Context) (*ThirdAuth, error) {
 		err  error
 		node *ThirdAuth
 	)
-	tauo.defaults()
+	if err := tauo.defaults(); err != nil {
+		return nil, err
+	}
 	if len(tauo.hooks) == 0 {
 		node, err = tauo.sqlSave(ctx)
 	} else {
@@ -467,11 +475,15 @@ func (tauo *ThirdAuthUpdateOne) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (tauo *ThirdAuthUpdateOne) defaults() {
+func (tauo *ThirdAuthUpdateOne) defaults() error {
 	if _, ok := tauo.mutation.UpdatedAt(); !ok {
+		if thirdauth.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized thirdauth.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := thirdauth.UpdateDefaultUpdatedAt()
 		tauo.mutation.SetUpdatedAt(v)
 	}
+	return nil
 }
 
 func (tauo *ThirdAuthUpdateOne) sqlSave(ctx context.Context) (_node *ThirdAuth, err error) {

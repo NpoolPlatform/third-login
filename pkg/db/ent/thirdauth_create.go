@@ -126,7 +126,9 @@ func (tac *ThirdAuthCreate) Save(ctx context.Context) (*ThirdAuth, error) {
 		err  error
 		node *ThirdAuth
 	)
-	tac.defaults()
+	if err := tac.defaults(); err != nil {
+		return nil, err
+	}
 	if len(tac.hooks) == 0 {
 		if err = tac.check(); err != nil {
 			return nil, err
@@ -185,23 +187,36 @@ func (tac *ThirdAuthCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (tac *ThirdAuthCreate) defaults() {
+func (tac *ThirdAuthCreate) defaults() error {
 	if _, ok := tac.mutation.CreatedAt(); !ok {
+		if thirdauth.DefaultCreatedAt == nil {
+			return fmt.Errorf("ent: uninitialized thirdauth.DefaultCreatedAt (forgotten import ent/runtime?)")
+		}
 		v := thirdauth.DefaultCreatedAt()
 		tac.mutation.SetCreatedAt(v)
 	}
 	if _, ok := tac.mutation.UpdatedAt(); !ok {
+		if thirdauth.DefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized thirdauth.DefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := thirdauth.DefaultUpdatedAt()
 		tac.mutation.SetUpdatedAt(v)
 	}
 	if _, ok := tac.mutation.DeletedAt(); !ok {
+		if thirdauth.DefaultDeletedAt == nil {
+			return fmt.Errorf("ent: uninitialized thirdauth.DefaultDeletedAt (forgotten import ent/runtime?)")
+		}
 		v := thirdauth.DefaultDeletedAt()
 		tac.mutation.SetDeletedAt(v)
 	}
 	if _, ok := tac.mutation.ID(); !ok {
+		if thirdauth.DefaultID == nil {
+			return fmt.Errorf("ent: uninitialized thirdauth.DefaultID (forgotten import ent/runtime?)")
+		}
 		v := thirdauth.DefaultID()
 		tac.mutation.SetID(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.

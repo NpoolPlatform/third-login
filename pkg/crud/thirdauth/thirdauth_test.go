@@ -9,7 +9,7 @@ import (
 
 	cruder "github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	npool "github.com/NpoolPlatform/message/npool/third-login-gateway"
-	"github.com/NpoolPlatform/third-login-gateway/pkg/test-init" //nolint
+	testinit "github.com/NpoolPlatform/third-login-gateway/pkg/test-init"
 
 	constant "github.com/NpoolPlatform/third-login-gateway/pkg/const"
 
@@ -68,7 +68,4 @@ func TestCRUD(t *testing.T) {
 		assert.Equal(t, total, 1)
 		assert.Equal(t, infos[0], &thirdAuth)
 	}
-
-	schema, err = New(context.Background(), nil)
-	assert.Nil(t, err)
 }

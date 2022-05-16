@@ -309,6 +309,12 @@ func (taq *ThirdAuthQuery) prepareQuery(ctx context.Context) error {
 		}
 		taq.sql = prev
 	}
+	if thirdauth.Policy == nil {
+		return errors.New("ent: uninitialized thirdauth.Policy (forgotten import ent/runtime?)")
+	}
+	if err := thirdauth.Policy.EvalQuery(ctx, taq); err != nil {
+		return err
+	}
 	return nil
 }
 

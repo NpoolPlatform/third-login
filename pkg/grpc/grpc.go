@@ -5,72 +5,71 @@ import (
 	"fmt"
 	"time"
 
+	appusermgrconst "github.com/NpoolPlatform/appuser-manager/pkg/message/const"
 	grpc2 "github.com/NpoolPlatform/go-service-framework/pkg/grpc"
-
-	appusermgrconst "github.com/NpoolPlatform/appuser-manager/pkg/message/const" //nolint
+	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	appusermgrpb "github.com/NpoolPlatform/message/npool/appusermgr"
 )
 
 const (
-	grpcTimeout = 60 * time.Second
+	grpcTimeout = 10 * time.Second
 )
 
-func GetAppUserThirdByAppThird(ctx context.Context, in *appusermgrpb.GetAppUserThirdByAppThirdRequest) (*appusermgrpb.AppUserThird, error) {
+type handle func(_ctx context.Context, cli appusermgrpb.AppUserManagerClient) (cruder.Any, error)
+
+func doAppUser(ctx context.Context, fn handle) (cruder.Any, error) {
+	_ctx, cancel := context.WithTimeout(ctx, grpcTimeout)
+	defer cancel()
+
 	conn, err := grpc2.GetGRPCConn(appusermgrconst.ServiceName, grpc2.GRPCTAG)
 	if err != nil {
-		return nil, fmt.Errorf("fail get app user manager connection: %v", err)
+		return nil, fmt.Errorf("fail get app user connection: %v", err)
 	}
 	defer conn.Close()
 
 	cli := appusermgrpb.NewAppUserManagerClient(conn)
 
-	ctx, cancel := context.WithTimeout(ctx, grpcTimeout)
-	defer cancel()
+	return fn(_ctx, cli)
+}
 
-	resp, err := cli.GetAppUserThirdByAppThird(ctx, in)
+func GetAppUserThirdByAppThird(ctx context.Context, in *appusermgrpb.GetAppUserThirdByAppThirdRequest) (*appusermgrpb.AppUserThird, error) {
+	info, err := doAppUser(ctx, func(_ctx context.Context, cli appusermgrpb.AppUserManagerClient) (cruder.Any, error) {
+		resp, err := cli.GetAppUserThirdByAppThird(ctx, in)
+		if err != nil {
+			return nil, fmt.Errorf("fail get app user third: %v", err)
+		}
+		return resp.Info, nil
+	})
 	if err != nil {
-		return nil, fmt.Errorf("fail update cache: %v", err)
+		return nil, fmt.Errorf("fail get app user third: %v", err)
 	}
-
-	return resp.Info, nil
+	return info.(*appusermgrpb.AppUserThird), nil
 }
 
 func CreateAppUserWithThird(ctx context.Context, in *appusermgrpb.CreateAppUserWithThirdRequest) (*appusermgrpb.AppUser, error) {
-	conn, err := grpc2.GetGRPCConn(appusermgrconst.ServiceName, grpc2.GRPCTAG)
+	info, err := doAppUser(ctx, func(_ctx context.Context, cli appusermgrpb.AppUserManagerClient) (cruder.Any, error) {
+		resp, err := cli.CreateAppUserWithThird(ctx, in)
+		if err != nil {
+			return nil, fmt.Errorf("fail create app user with third: %v", err)
+		}
+		return resp.Info, nil
+	})
 	if err != nil {
-		return nil, fmt.Errorf("fail get app user manager connection: %v", err)
+		return nil, fmt.Errorf("fail create app user with third: %v", err)
 	}
-	defer conn.Close()
-
-	cli := appusermgrpb.NewAppUserManagerClient(conn)
-
-	ctx, cancel := context.WithTimeout(ctx, grpcTimeout)
-	defer cancel()
-
-	resp, err := cli.CreateAppUserWithThird(ctx, in)
-	if err != nil {
-		return nil, fmt.Errorf("fail update cache: %v", err)
-	}
-
-	return resp.Info, nil
+	return info.(*appusermgrpb.AppUser), nil
 }
 
 func GetAppUserInfo(ctx context.Context, in *appusermgrpb.GetAppUserInfoRequest) (*appusermgrpb.AppUserInfo, error) {
-	conn, err := grpc2.GetGRPCConn(appusermgrconst.ServiceName, grpc2.GRPCTAG)
+	info, err := doAppUser(ctx, func(_ctx context.Context, cli appusermgrpb.AppUserManagerClient) (cruder.Any, error) {
+		resp, err := cli.GetAppUserInfo(ctx, in)
+		if err != nil {
+			return nil, fmt.Errorf("fail get app user info: %v", err)
+		}
+		return resp.Info, nil
+	})
 	if err != nil {
-		return nil, fmt.Errorf("fail get app user manager connection: %v", err)
+		return nil, fmt.Errorf("fail get app user info: %v", err)
 	}
-	defer conn.Close()
-
-	cli := appusermgrpb.NewAppUserManagerClient(conn)
-
-	ctx, cancel := context.WithTimeout(ctx, grpcTimeout)
-	defer cancel()
-
-	resp, err := cli.GetAppUserInfo(ctx, in)
-	if err != nil {
-		return nil, fmt.Errorf("fail update cache: %v", err)
-	}
-
-	return resp.Info, nil
+	return info.(*appusermgrpb.AppUserInfo), nil
 }

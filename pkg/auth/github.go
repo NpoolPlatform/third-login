@@ -6,21 +6,20 @@ import (
 	"errors"
 	"os"
 
+	appuserconst "github.com/NpoolPlatform/appuser-manager/pkg/const"
 	appusermgrpb "github.com/NpoolPlatform/message/npool/appusermgr"
 	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
 )
 
-var (
-	githubAuthorizeURL = "https://github.com/login/oauth/authorize"
-	githubTokenURL     = "https://github.com/login/oauth/access_token"
-	githubUserInfoURL  = "https://api.github.com/user"
-)
-
-type GitHubAuth struct{}
+type GitHubAuth struct {
+	GithubAuthorizeURL string
+	GithubTokenURL     string
+	GithubUserInfoURL  string
+}
 
 func (a *GitHubAuth) GetRedirectURL(config *Config) (string, error) {
-	url := NewURLBuilder(githubAuthorizeURL).
+	url := NewURLBuilder(a.GithubAuthorizeURL).
 		AddParam("response_type", "code").
 		AddParam("client_id", config.ClientID).
 		AddParam("redirect_uri", config.RedirectURL).
@@ -31,7 +30,7 @@ func (a *GitHubAuth) GetRedirectURL(config *Config) (string, error) {
 }
 
 func (a *GitHubAuth) GetAccessToken(ctx context.Context, code string, config *Config) (string, error) {
-	url := NewURLBuilder(githubTokenURL).
+	url := NewURLBuilder(a.GithubTokenURL).
 		AddParam("client_id", config.ClientID).
 		AddParam("client_secret", config.ClientSecret).
 		AddParam("code", code).
@@ -61,7 +60,7 @@ func (a *GitHubAuth) GetUserInfo(ctx context.Context, code string, config *Confi
 	if err != nil {
 		return &appusermgrpb.AppUserThird{}, err
 	}
-	url := githubUserInfoURL
+	url := a.GithubUserInfoURL
 
 	client := resty.New()
 	client.SetProxy(os.Getenv("ENV_CURRENCY_REQUEST_PROXY"))
@@ -85,5 +84,7 @@ func (a *GitHubAuth) GetUserInfo(ctx context.Context, code string, config *Confi
 		ThirdUserName:    m["login"],
 		ThirdUserPicture: m["avatar_url"],
 		ThirdExtra:       string(resp.Body()),
+		Third:            appuserconst.ThirdGithub,
+		ThirdId:          config.ClientID,
 	}, nil
 }

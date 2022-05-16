@@ -6,7 +6,6 @@ import (
 	"strings"
 )
 
-// build url with param
 type URLBuilder struct {
 	baseURL string
 	params  url.Values
@@ -18,7 +17,8 @@ func NewURLBuilder(baseURL string) *URLBuilder {
 	if err != nil {
 		return builder
 	}
-	urls := strings.SplitN(uv.String(), "?", 2)
+	var n = 2
+	urls := strings.SplitN(uv.String(), "?", n)
 	builder.baseURL = urls[0]
 	builder.params = uv.Query()
 	return builder

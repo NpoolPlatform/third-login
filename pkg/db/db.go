@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/NpoolPlatform/third-login-gateway/pkg/db/ent"
-
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
+	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	"github.com/NpoolPlatform/go-service-framework/pkg/mysql"
+	"github.com/NpoolPlatform/third-login-gateway/pkg/db/ent"
 
 	// runtime
 	_ "github.com/NpoolPlatform/third-login-gateway/pkg/db/ent/runtime"
@@ -40,7 +40,11 @@ func WithTx(ctx context.Context, tx *ent.Tx, fn func(ctx context.Context) error)
 	succ := false
 	defer func() {
 		if !succ {
-			tx.Rollback()
+			err := tx.Rollback()
+			if err != nil {
+				logger.Sugar().Errorf("fail rollback: %v", err)
+				return
+			}
 		}
 	}()
 	if err := fn(ctx); err != nil {
@@ -54,7 +58,8 @@ func WithTx(ctx context.Context, tx *ent.Tx, fn func(ctx context.Context) error)
 }
 
 func Do(ctx context.Context, fn func(ctx context.Context, cli *ent.Client) error) error {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	var timeOut = 5 * time.Second
+	ctx, cancel := context.WithTimeout(ctx, timeOut)
 	defer cancel()
 
 	cli, err := Client()
