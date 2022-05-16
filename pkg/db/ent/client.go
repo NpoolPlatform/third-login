@@ -210,6 +210,5 @@ func (c *ThirdAuthClient) GetX(ctx context.Context, id uuid.UUID) *ThirdAuth {
 
 // Hooks returns the client hooks.
 func (c *ThirdAuthClient) Hooks() []Hook {
-	hooks := c.hooks.ThirdAuth
-	return append(hooks[:len(hooks):len(hooks)], thirdauth.Hooks[:]...)
+	return c.hooks.ThirdAuth
 }

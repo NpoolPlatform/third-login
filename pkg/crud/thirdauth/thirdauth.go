@@ -51,6 +51,7 @@ func (s *ThirdAuth) Create(ctx context.Context, in *npool.ThirdAuth) (*npool.Thi
 			SetThirdAppKey(in.GetThirdAppKey()).
 			SetThirdAppSecret(in.GetThirdAppSecret()).
 			SetLogoURL(in.GetLogoUrl()).
+			SetRedirectURL(in.GetRedirectUrl()).
 			Save(_ctx)
 		return err
 	})

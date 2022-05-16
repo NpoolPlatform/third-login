@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	"github.com/NpoolPlatform/third-login-gateway/pkg/db/ent"
 
 	"entgo.io/ent/dialect"
@@ -38,28 +37,19 @@ func Client() (*ent.Client, error) {
 }
 
 func WithTx(ctx context.Context, tx *ent.Tx, fn func(ctx context.Context) error) error {
+	succ := false
 	defer func() {
-		if v := recover(); v != nil {
-			err := tx.Rollback()
-			if err != nil {
-				logger.Sugar().Errorf("fail to rollback: %v", err)
-			}
-			panic(v)
+		if !succ {
+			tx.Rollback()
 		}
 	}()
-
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
 	if err := fn(ctx); err != nil {
-		if rerr := tx.Rollback(); rerr != nil {
-			err = fmt.Errorf("rolling back transaction: %v (%v)", err, rerr)
-		}
 		return err
 	}
 	if err := tx.Commit(); err != nil {
 		return fmt.Errorf("committing transaction: %v", err)
 	}
+	succ = true
 	return nil
 }
 

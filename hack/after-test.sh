@@ -8,6 +8,6 @@ PLATFORM=linux/amd64
 OUTPUT=./output
 
 mkdir -p $OUTPUT/$PLATFORM
-for service_name in `ls $(pwd)/cmd`; do
+for service_name in `ls -l $(pwd)/cmd | grep ^d |awk '{print $9}'`; do
     kill -9 `pidof $service_name`
 done
