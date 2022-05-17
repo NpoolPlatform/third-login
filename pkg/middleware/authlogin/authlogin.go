@@ -66,6 +66,9 @@ func AuthLogin(ctx context.Context, in *npool.AuthLoginRequest) (*npool.AuthLogi
 		if err != nil {
 			return &npool.AuthLoginResponse{}, err
 		}
+		if user == nil {
+			return &npool.AuthLoginResponse{}, fmt.Errorf("fail createa app user with third")
+		}
 		tUser.UserID = user.ID
 	}
 

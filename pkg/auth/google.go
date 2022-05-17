@@ -88,6 +88,5 @@ func (a *GoogleAuth) GetUserInfo(ctx context.Context, code string, config *Confi
 		ThirdUserName:    m["email"],
 		ThirdUserPicture: m["picture"],
 		Third:            appuserconst.ThirdGoogle,
-		ThirdExtra:       string(resp.Body()),
 	}, nil
 }

@@ -83,7 +83,6 @@ func (a *GitHubAuth) GetUserInfo(ctx context.Context, code string, config *Confi
 		ThirdUserId:      m["id"],
 		ThirdUserName:    m["login"],
 		ThirdUserPicture: m["avatar_url"],
-		ThirdExtra:       string(resp.Body()),
 		Third:            appuserconst.ThirdGithub,
 		ThirdId:          config.ClientID,
 	}, nil

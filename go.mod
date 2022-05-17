@@ -15,7 +15,7 @@ require (
 	github.com/streadway/amqp v1.0.0
 	github.com/stretchr/testify v1.7.1
 	github.com/urfave/cli/v2 v2.5.1
-	google.golang.org/grpc v1.46.0
+	google.golang.org/grpc v1.46.2
 	google.golang.org/protobuf v1.28.0
 )
 
@@ -97,6 +97,7 @@ require (
 
 replace google.golang.org/grpc => github.com/grpc/grpc-go v1.41.0
 
-replace github.com/NpoolPlatform/message => github.com/NpoolPlatform/message v0.0.0-20220513083342-73e8b9445198
-
-replace github.com/NpoolPlatform/appuser-manager => github.com/NpoolPlatform/appuser-manager v0.0.0-20220513103514-ab69ff5fb158
+replace (
+	github.com/NpoolPlatform/appuser-manager => github.com/NpoolPlatform/appuser-manager v0.0.0-20220517105319-7f7e419d9228
+	github.com/NpoolPlatform/message => github.com/NpoolPlatform/message v0.0.0-20220517103704-7a7ba36495a4
+)
