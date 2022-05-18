@@ -3,7 +3,6 @@ package auth
 import (
 	"fmt"
 	"net/url"
-	"strings"
 )
 
 type URLBuilder struct {
@@ -17,9 +16,7 @@ func NewURLBuilder(baseURL string) *URLBuilder {
 	if err != nil {
 		return builder
 	}
-	var n = 2
-	urls := strings.SplitN(uv.String(), "?", n)
-	builder.baseURL = urls[0]
+	builder.baseURL = uv.Scheme + "://" + uv.Host + uv.Path
 	builder.params = uv.Query()
 	return builder
 }
