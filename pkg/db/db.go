@@ -2,9 +2,11 @@ package db
 
 import (
 	"context"
+	"fmt"
+
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
-	"fmt"
+
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	"github.com/NpoolPlatform/go-service-framework/pkg/mysql"
 	"github.com/NpoolPlatform/third-login-gateway/pkg/db/ent"

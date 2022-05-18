@@ -49,8 +49,8 @@ func AuthLogin(ctx context.Context, in *npool.AuthLoginRequest) (*npool.AuthLogi
 	var tUser *appusermgrpb.AppUserThird
 	tUser, err = grpc2.GetAppUserThirdByAppThird(ctx, &appusermgrpb.GetAppUserThirdByAppThirdRequest{
 		AppID:       thirdUser.AppID,
-		ThirdID:     thirdUser.ThirdId,
-		ThirdUserID: thirdUser.ThirdUserId,
+		ThirdID:     thirdUser.ThirdID,
+		ThirdUserID: thirdUser.ThirdUserID,
 	})
 	if err != nil {
 		return &npool.AuthLoginResponse{}, err

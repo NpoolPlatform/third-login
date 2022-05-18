@@ -98,10 +98,10 @@ func (a *GitHubAuth) GetUserInfo(ctx context.Context, code string, config *Confi
 		return &appusermgrpb.AppUserThird{}, errors.New(gitHubRes.ErrorDescription)
 	}
 	return &appusermgrpb.AppUserThird{
-		ThirdUserId:      fmt.Sprintf("%v", gitHubRes.ID),
-		ThirdUserName:    gitHubRes.Login,
-		ThirdUserPicture: gitHubRes.AvatarURL,
-		Third:            appuserconst.ThirdGithub,
-		ThirdId:          config.ClientID,
+		ThirdUserID:     fmt.Sprintf("%v", gitHubRes.ID),
+		ThirdUserName:   gitHubRes.Login,
+		ThirdUserAvatar: gitHubRes.AvatarURL,
+		Third:           appuserconst.ThirdGithub,
+		ThirdID:         config.ClientID,
 	}, nil
 }

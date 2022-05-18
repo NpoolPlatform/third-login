@@ -110,10 +110,10 @@ func (a *GoogleAuth) GetUserInfo(ctx context.Context, code string, config *Confi
 		return nil, err
 	}
 	return &appusermgrpb.AppUserThird{
-		ThirdUserId:      googleRes.ID,
-		ThirdUserName:    googleRes.Email,
-		ThirdUserPicture: googleRes.Picture,
-		Third:            appuserconst.ThirdGoogle,
-		ThirdId:          config.ClientID,
+		ThirdUserID:     googleRes.ID,
+		ThirdUserName:   googleRes.Email,
+		ThirdUserAvatar: googleRes.Picture,
+		Third:           appuserconst.ThirdGoogle,
+		ThirdID:         config.ClientID,
 	}, nil
 }
