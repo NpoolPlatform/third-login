@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 
 	appuserconst "github.com/NpoolPlatform/appuser-manager/pkg/const"
@@ -16,6 +17,20 @@ type GitHubAuth struct {
 	GithubAuthorizeURL string
 	GithubTokenURL     string
 	GithubUserInfoURL  string
+}
+
+type GitHubUserInfoRes struct {
+	ID               int    `json:"id"`
+	Login            string `json:"login"`
+	AvatarURL        string `json:"avatar_url"`
+	Error            string `json:"error"`
+	ErrorDescription string `json:"error_description"`
+}
+
+type GitHubTokenRes struct {
+	AccessToken      string `json:"access_token"`
+	Error            string `json:"error"`
+	ErrorDescription string `json:"error_description"`
 }
 
 func (a *GitHubAuth) GetRedirectURL(config *Config) (string, error) {
@@ -36,6 +51,7 @@ func (a *GitHubAuth) GetAccessToken(ctx context.Context, code string, config *Co
 		AddParam("code", code).
 		Build()
 	client := resty.New()
+
 	client.SetProxy(os.Getenv("ENV_CURRENCY_REQUEST_PROXY"))
 	resp, err := client.R().
 		SetContext(ctx).
@@ -44,15 +60,15 @@ func (a *GitHubAuth) GetAccessToken(ctx context.Context, code string, config *Co
 	if err != nil {
 		return "", err
 	}
-	m := make(map[string]interface{})
-	err = json.Unmarshal(resp.Body(), &m)
+	gitHubRes := GitHubTokenRes{}
+	err = json.Unmarshal(resp.Body(), &gitHubRes)
 	if err != nil {
 		return "", err
 	}
-	if _, ok := m["error"]; ok {
-		return "", errors.New(m["error_description"].(string))
+	if gitHubRes.Error != "" {
+		return "", errors.New(gitHubRes.ErrorDescription)
 	}
-	return m["access_token"].(string), err
+	return gitHubRes.AccessToken, err
 }
 
 func (a *GitHubAuth) GetUserInfo(ctx context.Context, code string, config *Config) (*appusermgrpb.AppUserThird, error) {
@@ -72,17 +88,19 @@ func (a *GitHubAuth) GetUserInfo(ctx context.Context, code string, config *Confi
 	if err != nil {
 		return &appusermgrpb.AppUserThird{}, err
 	}
-	m, err := JSONToMSS(string(resp.Body()))
+
+	gitHubRes := GitHubUserInfoRes{}
+	err = json.Unmarshal(resp.Body(), &gitHubRes)
 	if err != nil {
 		return nil, err
 	}
-	if _, ok := m["error"]; ok {
-		return &appusermgrpb.AppUserThird{}, errors.New(m["error_description"])
+	if gitHubRes.Error != "" {
+		return &appusermgrpb.AppUserThird{}, errors.New(gitHubRes.ErrorDescription)
 	}
 	return &appusermgrpb.AppUserThird{
-		ThirdUserId:      m["id"],
-		ThirdUserName:    m["login"],
-		ThirdUserPicture: m["avatar_url"],
+		ThirdUserId:      fmt.Sprintf("%v", gitHubRes.ID),
+		ThirdUserName:    gitHubRes.Login,
+		ThirdUserPicture: gitHubRes.AvatarURL,
 		Third:            appuserconst.ThirdGithub,
 		ThirdId:          config.ClientID,
 	}, nil

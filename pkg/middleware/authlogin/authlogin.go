@@ -55,7 +55,6 @@ func AuthLogin(ctx context.Context, in *npool.AuthLoginRequest) (*npool.AuthLogi
 	if err != nil {
 		return &npool.AuthLoginResponse{}, err
 	}
-
 	if tUser == nil {
 		user, err := grpc2.CreateAppUserWithThird(ctx, &appusermgrpb.CreateAppUserWithThirdRequest{
 			User: &appusermgrpb.AppUser{
@@ -69,11 +68,11 @@ func AuthLogin(ctx context.Context, in *npool.AuthLoginRequest) (*npool.AuthLogi
 		if user == nil {
 			return &npool.AuthLoginResponse{}, fmt.Errorf("fail createa app user with third")
 		}
-		tUser.UserID = user.ID
+		thirdUser.ID = user.GetID()
 	}
 
 	userInfo, err := grpc2.GetAppUserInfo(ctx, &appusermgrpb.GetAppUserInfoRequest{
-		ID: tUser.UserID,
+		ID: thirdUser.ID,
 	})
 	if err != nil {
 		return &npool.AuthLoginResponse{}, err

@@ -18,6 +18,21 @@ type GoogleAuth struct {
 	GoogleUserInfoURL  string
 }
 
+type GoogleTokenRes struct {
+	AccessToken string `json:"access_token"`
+}
+
+type GoogleUserInfoRes struct {
+	ID      string `json:"id"`
+	Email   string `json:"email"`
+	Picture string `json:"picture"`
+}
+
+type GoogleErrRes struct {
+	Error            string `json:"error"`
+	ErrorDescription string `json:"error_description"`
+}
+
 func (a *GoogleAuth) GetRedirectURL(config *Config) (string, error) {
 	url := NewURLBuilder(a.GoogleAuthorizeURL).
 		AddParam("client_id", config.ClientID).
@@ -47,16 +62,21 @@ func (a *GoogleAuth) GetAccessToken(ctx context.Context, code string, config *Co
 	if err != nil {
 		return "", err
 	}
-	m := make(map[string]interface{})
-	err = json.Unmarshal(resp.Body(), &m)
+	successCode := 200
+	if resp.StatusCode() != successCode {
+		googleRes := GoogleErrRes{}
+		err = json.Unmarshal(resp.Body(), &googleRes)
+		if err != nil {
+			return "", err
+		}
+		return "", errors.New(googleRes.ErrorDescription)
+	}
+	googleRes := GoogleTokenRes{}
+	err = json.Unmarshal(resp.Body(), &googleRes)
 	if err != nil {
 		return "", err
 	}
-	if _, ok := m["error"]; ok {
-		return "", errors.New(m["error_description"].(string))
-	}
-
-	return m["access_token"].(string), err
+	return googleRes.AccessToken, nil
 }
 
 func (a *GoogleAuth) GetUserInfo(ctx context.Context, code string, config *Config) (*appusermgrpb.AppUserThird, error) {
@@ -75,18 +95,25 @@ func (a *GoogleAuth) GetUserInfo(ctx context.Context, code string, config *Confi
 	if err != nil {
 		return &appusermgrpb.AppUserThird{}, err
 	}
-
-	m, err := JSONToMSS(string(resp.Body()))
+	successCode := 200
+	if resp.StatusCode() != successCode {
+		googleRes := GoogleErrRes{}
+		err = json.Unmarshal(resp.Body(), &googleRes)
+		if err != nil {
+			return &appusermgrpb.AppUserThird{}, err
+		}
+		return &appusermgrpb.AppUserThird{}, errors.New(googleRes.ErrorDescription)
+	}
+	googleRes := GoogleUserInfoRes{}
+	err = json.Unmarshal(resp.Body(), &googleRes)
 	if err != nil {
 		return nil, err
 	}
-	if _, ok := m["error"]; ok {
-		return &appusermgrpb.AppUserThird{}, errors.New(m["error_description"])
-	}
 	return &appusermgrpb.AppUserThird{
-		ThirdUserId:      m["id"],
-		ThirdUserName:    m["email"],
-		ThirdUserPicture: m["picture"],
+		ThirdUserId:      googleRes.ID,
+		ThirdUserName:    googleRes.Email,
+		ThirdUserPicture: googleRes.Picture,
 		Third:            appuserconst.ThirdGoogle,
+		ThirdId:          config.ClientID,
 	}, nil
 }
