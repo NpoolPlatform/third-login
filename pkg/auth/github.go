@@ -79,7 +79,9 @@ func (a *GitHubAuth) GetUserInfo(ctx context.Context, code string, config *Confi
 	url := a.GithubUserInfoURL
 
 	client := resty.New()
-	client.SetProxy(os.Getenv("ENV_CURRENCY_REQUEST_PROXY"))
+	if os.Getenv("ENV_CURRENCY_REQUEST_PROXY") != "" {
+		client.SetProxy(os.Getenv("ENV_CURRENCY_REQUEST_PROXY"))
+	}
 	resp, err := client.R().
 		SetContext(ctx).
 		// batter is use Bearer

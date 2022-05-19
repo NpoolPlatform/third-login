@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY third-login-gateway /app
 
-ENTRYPOINT ["third-login-gateway"]
+ENTRYPOINT ["./third-login-gateway"]
 
 EXPOSE 50280 50281 50282
 
