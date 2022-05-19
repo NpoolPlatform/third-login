@@ -51,8 +51,9 @@ func (a *GitHubAuth) GetAccessToken(ctx context.Context, code string, config *Co
 		AddParam("code", code).
 		Build()
 	client := resty.New()
-
-	client.SetProxy(os.Getenv("ENV_CURRENCY_REQUEST_PROXY"))
+	if os.Getenv("ENV_CURRENCY_REQUEST_PROXY") != "" {
+		client.SetProxy(os.Getenv("ENV_CURRENCY_REQUEST_PROXY"))
+	}
 	resp, err := client.R().
 		SetContext(ctx).
 		SetHeader("Accept", "application/json").

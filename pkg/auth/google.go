@@ -54,7 +54,9 @@ func (a *GoogleAuth) GetAccessToken(ctx context.Context, code string, config *Co
 	// google redirect code is url encode,addParam will cause duplication url encode
 	url = url + "&code=" + code
 	client := resty.New()
-	client.SetProxy(os.Getenv("ENV_CURRENCY_REQUEST_PROXY"))
+	if os.Getenv("ENV_CURRENCY_REQUEST_PROXY") != "" {
+		client.SetProxy(os.Getenv("ENV_CURRENCY_REQUEST_PROXY"))
+	}
 	resp, err := client.R().
 		SetContext(ctx).
 		SetHeader("Content-Type", "application/json").
@@ -86,7 +88,9 @@ func (a *GoogleAuth) GetUserInfo(ctx context.Context, code string, config *Confi
 	}
 	url := a.GoogleUserInfoURL
 	client := resty.New()
-	client.SetProxy(os.Getenv("ENV_CURRENCY_REQUEST_PROXY"))
+	if os.Getenv("ENV_CURRENCY_REQUEST_PROXY") != "" {
+		client.SetProxy(os.Getenv("ENV_CURRENCY_REQUEST_PROXY"))
+	}
 	resp, err := client.R().
 		SetContext(ctx).
 		SetHeader("Content-Type", "application/json").
