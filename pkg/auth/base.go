@@ -28,6 +28,11 @@ func init() {
 		GoogleTokenURL:     "https://oauth2.googleapis.com/token",
 		GoogleUserInfoURL:  "https://www.googleapis.com/oauth2/v2/userinfo",
 	}
+	ThirdMap[appusermgrconst.ThirdFaceBook] = &FaceBookAuth{
+		FaceBookAuthorizeURL: "https://www.facebook.com/v13.0/dialog/oauth",
+		FaceBookTokenURL:     "https://graph.facebook.com/v13.0/oauth/access_token",
+		FaceBookUserInfoURL:  "https://graph.facebook.com/me",
+	}
 }
 
 type ThirdMethod interface {
