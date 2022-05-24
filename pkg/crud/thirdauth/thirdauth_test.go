@@ -28,9 +28,9 @@ func init() {
 }
 
 func TestCRUD(t *testing.T) {
-	//if runByGithubAction, err := strconv.ParseBool(os.Getenv("RUN_BY_GITHUB_ACTION")); err == nil && runByGithubAction {
-	//	return
-	//}
+	if runByGithubAction, err := strconv.ParseBool(os.Getenv("RUN_BY_GITHUB_ACTION")); err == nil && runByGithubAction {
+		return
+	}
 
 	thirdAuth := npool.ThirdAuth{
 		AppID:          uuid.New().String(),
