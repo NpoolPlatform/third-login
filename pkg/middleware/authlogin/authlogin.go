@@ -7,7 +7,7 @@ import (
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	appusermgrpb "github.com/NpoolPlatform/message/npool/appusermgr"
-	npool "github.com/NpoolPlatform/message/npool/third-login-gateway"
+	npool "github.com/NpoolPlatform/message/npool/thirdlogingateway"
 	oauth "github.com/NpoolPlatform/third-login-gateway/pkg/auth"
 	constant "github.com/NpoolPlatform/third-login-gateway/pkg/const"
 	crud "github.com/NpoolPlatform/third-login-gateway/pkg/crud/thirdauth"
@@ -16,33 +16,30 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func AuthLogin(ctx context.Context, in *npool.AuthLoginRequest) (*npool.AuthLoginResponse, error) {
+func Login(ctx context.Context, in *npool.LoginRequest) (*npool.LoginResponse, error) {
 	schema, err := crud.New(ctx, nil)
 	if err != nil {
 		logger.Sugar().Errorf("fail create schema entity: %v", err)
-		return &npool.AuthLoginResponse{}, status.Error(codes.Internal, err.Error())
+		return &npool.LoginResponse{}, status.Error(codes.Internal, err.Error())
 	}
 
-	infos, _, err := schema.Rows(ctx, cruder.NewConds().
+	info, err := schema.RowOnly(ctx, cruder.NewConds().
 		WithCond(constant.ThirdAuthFieldAppID, cruder.EQ, in.GetAppID()).
-		WithCond(constant.ThirdAuthFieldThird, cruder.EQ, in.GetThird()), 0, 0)
+		WithCond(constant.ThirdAuthFieldThird, cruder.EQ, in.GetThird()))
 	if err != nil {
 		logger.Sugar().Errorf("fail get third auth: %v", err)
-		return &npool.AuthLoginResponse{}, status.Error(codes.Internal, err.Error())
-	}
-	if len(infos) == 0 {
-		return &npool.AuthLoginResponse{}, status.Error(codes.Internal, "not find third auth")
+		return &npool.LoginResponse{}, status.Error(codes.Internal, err.Error())
 	}
 
-	conf := &oauth.Config{ClientID: infos[0].ThirdAppKey, ClientSecret: infos[0].ThirdAppSecret, RedirectURL: infos[0].RedirectUrl}
+	conf := &oauth.Config{ClientID: info.ThirdAppKey, ClientSecret: info.ThirdAppSecret, RedirectURL: info.RedirectUrl}
 	third, ok := oauth.ThirdMap[in.GetThird()]
 	if !ok {
-		return &npool.AuthLoginResponse{}, fmt.Errorf("login method does not exist")
+		return &npool.LoginResponse{}, fmt.Errorf("login method does not exist")
 	}
 	thirdMethod := oauth.NewContext(third)
 	thirdUser, err := thirdMethod.GetUserInfo(ctx, in.GetCode(), conf)
 	if err != nil {
-		return &npool.AuthLoginResponse{}, err
+		return &npool.LoginResponse{}, err
 	}
 	thirdUser.AppID = in.GetAppID()
 
@@ -53,7 +50,7 @@ func AuthLogin(ctx context.Context, in *npool.AuthLoginRequest) (*npool.AuthLogi
 		ThirdUserID: thirdUser.ThirdUserID,
 	})
 	if err != nil {
-		return &npool.AuthLoginResponse{}, err
+		return &npool.LoginResponse{}, err
 	}
 	if tUser == nil {
 		user, err := grpc2.CreateAppUserWithThird(ctx, &appusermgrpb.CreateAppUserWithThirdRequest{
@@ -63,10 +60,10 @@ func AuthLogin(ctx context.Context, in *npool.AuthLoginRequest) (*npool.AuthLogi
 			Third: thirdUser,
 		})
 		if err != nil {
-			return &npool.AuthLoginResponse{}, err
+			return &npool.LoginResponse{}, err
 		}
 		if user == nil {
-			return &npool.AuthLoginResponse{}, fmt.Errorf("fail createa app user with third")
+			return &npool.LoginResponse{}, fmt.Errorf("fail createa app user with third")
 		}
 		thirdUser.ID = user.GetID()
 	}
@@ -75,9 +72,9 @@ func AuthLogin(ctx context.Context, in *npool.AuthLoginRequest) (*npool.AuthLogi
 		ID: thirdUser.ID,
 	})
 	if err != nil {
-		return &npool.AuthLoginResponse{}, err
+		return &npool.LoginResponse{}, err
 	}
-	return &npool.AuthLoginResponse{
+	return &npool.LoginResponse{
 		Info: userInfo,
 	}, err
 }

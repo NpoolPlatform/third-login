@@ -9,10 +9,10 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	npool "github.com/NpoolPlatform/message/npool/third-login-gateway"
+	npool "github.com/NpoolPlatform/message/npool/thirdlogingateway"
 )
 
-func (s *Server) AuthLogin(ctx context.Context, in *npool.AuthLoginRequest) (*npool.AuthLoginResponse, error) {
+func (s *Server) Login(ctx context.Context, in *npool.LoginRequest) (*npool.LoginResponse, error) {
 	if in.GetCode() == "" {
 		logger.Sugar().Error("auth login error code is empty")
 		return nil, status.Error(codes.InvalidArgument, "code empty")
@@ -25,12 +25,12 @@ func (s *Server) AuthLogin(ctx context.Context, in *npool.AuthLoginRequest) (*np
 
 	if _, err := uuid.Parse(in.AppID); err != nil {
 		logger.Sugar().Errorf("invalid request app id: %v", err)
-		return &npool.AuthLoginResponse{}, status.Error(codes.Internal, err.Error())
+		return &npool.LoginResponse{}, status.Error(codes.Internal, err.Error())
 	}
-	resp, err := mw.AuthLogin(ctx, in)
+	resp, err := mw.Login(ctx, in)
 	if err != nil {
 		logger.Sugar().Errorw("auth login error: %v", err)
-		return &npool.AuthLoginResponse{}, status.Error(codes.Internal, err.Error())
+		return &npool.LoginResponse{}, status.Error(codes.Internal, err.Error())
 	}
 	return resp, nil
 }

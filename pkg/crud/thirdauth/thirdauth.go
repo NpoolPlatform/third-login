@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
-	npool "github.com/NpoolPlatform/message/npool/third-login-gateway"
+	npool "github.com/NpoolPlatform/message/npool/thirdlogingateway"
 	constant "github.com/NpoolPlatform/third-login-gateway/pkg/const"
 	"github.com/NpoolPlatform/third-login-gateway/pkg/db"
 	"github.com/NpoolPlatform/third-login-gateway/pkg/db/ent"
@@ -60,6 +60,36 @@ func (s *ThirdAuth) Create(ctx context.Context, in *npool.ThirdAuth) (*npool.Thi
 	}
 
 	return s.rowToObject(info), nil
+}
+
+func (s *ThirdAuth) CreateBulk(ctx context.Context, in []*npool.ThirdAuth) ([]*npool.ThirdAuth, error) {
+	rows := []*ent.ThirdAuth{}
+	var err error
+
+	err = db.WithTx(ctx, s.Tx, func(_ctx context.Context) error {
+		bulk := make([]*ent.ThirdAuthCreate, len(in))
+		for i, info := range in {
+			bulk[i] = s.Tx.ThirdAuth.Create().
+				SetAppID(uuid.MustParse(info.GetAppID())).
+				SetThird(info.GetThird()).
+				SetThirdAppKey(info.GetThirdAppKey()).
+				SetThirdAppSecret(info.GetThirdAppSecret()).
+				SetLogoURL(info.GetLogoUrl()).
+				SetRedirectURL(info.GetRedirectUrl())
+		}
+		rows, err = s.Tx.ThirdAuth.CreateBulk(bulk...).Save(_ctx)
+		return err
+	})
+	if err != nil {
+		return nil, fmt.Errorf("fail create third auth: %v", err)
+	}
+
+	infos := []*npool.ThirdAuth{}
+	for _, row := range rows {
+		infos = append(infos, s.rowToObject(row))
+	}
+
+	return infos, nil
 }
 
 func (s *ThirdAuth) Update(ctx context.Context, in *npool.ThirdAuth) (*npool.ThirdAuth, error) {
@@ -119,6 +149,29 @@ func (s *ThirdAuth) Rows(ctx context.Context, conds cruder.Conds, offset, limit 
 	}
 
 	return infos, total, nil
+}
+
+func (s *ThirdAuth) RowOnly(ctx context.Context, conds cruder.Conds) (*npool.ThirdAuth, error) {
+	var info *ent.ThirdAuth
+
+	err := db.WithTx(ctx, s.Tx, func(_ctx context.Context) error {
+		stm, err := s.queryFromConds(conds)
+		if err != nil {
+			return fmt.Errorf("fail construct stm: %v", err)
+		}
+
+		info, err = stm.Only(_ctx)
+		if err != nil {
+			return fmt.Errorf("fail query third auth: %v", err)
+		}
+
+		return nil
+	})
+	if err != nil {
+		return nil, fmt.Errorf("fail get third auth: %v", err)
+	}
+
+	return s.rowToObject(info), nil
 }
 
 func (s *ThirdAuth) queryFromConds(conds cruder.Conds) (*ent.ThirdAuthQuery, error) {
