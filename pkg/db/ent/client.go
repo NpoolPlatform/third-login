@@ -10,7 +10,8 @@ import (
 	"github.com/NpoolPlatform/third-login-gateway/pkg/db/ent/migrate"
 	"github.com/google/uuid"
 
-	"github.com/NpoolPlatform/third-login-gateway/pkg/db/ent/thirdauth"
+	"github.com/NpoolPlatform/third-login-gateway/pkg/db/ent/auth"
+	"github.com/NpoolPlatform/third-login-gateway/pkg/db/ent/thirdparty"
 
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
@@ -21,8 +22,10 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
-	// ThirdAuth is the client for interacting with the ThirdAuth builders.
-	ThirdAuth *ThirdAuthClient
+	// Auth is the client for interacting with the Auth builders.
+	Auth *AuthClient
+	// ThirdParty is the client for interacting with the ThirdParty builders.
+	ThirdParty *ThirdPartyClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -36,7 +39,8 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
-	c.ThirdAuth = NewThirdAuthClient(c.config)
+	c.Auth = NewAuthClient(c.config)
+	c.ThirdParty = NewThirdPartyClient(c.config)
 }
 
 // Open opens a database/sql.DB specified by the driver name and
@@ -68,9 +72,10 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:       ctx,
-		config:    cfg,
-		ThirdAuth: NewThirdAuthClient(cfg),
+		ctx:        ctx,
+		config:     cfg,
+		Auth:       NewAuthClient(cfg),
+		ThirdParty: NewThirdPartyClient(cfg),
 	}, nil
 }
 
@@ -88,16 +93,17 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:       ctx,
-		config:    cfg,
-		ThirdAuth: NewThirdAuthClient(cfg),
+		ctx:        ctx,
+		config:     cfg,
+		Auth:       NewAuthClient(cfg),
+		ThirdParty: NewThirdPartyClient(cfg),
 	}, nil
 }
 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		ThirdAuth.
+//		Auth.
 //		Query().
 //		Count(ctx)
 //
@@ -120,87 +126,88 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
-	c.ThirdAuth.Use(hooks...)
+	c.Auth.Use(hooks...)
+	c.ThirdParty.Use(hooks...)
 }
 
-// ThirdAuthClient is a client for the ThirdAuth schema.
-type ThirdAuthClient struct {
+// AuthClient is a client for the Auth schema.
+type AuthClient struct {
 	config
 }
 
-// NewThirdAuthClient returns a client for the ThirdAuth from the given config.
-func NewThirdAuthClient(c config) *ThirdAuthClient {
-	return &ThirdAuthClient{config: c}
+// NewAuthClient returns a client for the Auth from the given config.
+func NewAuthClient(c config) *AuthClient {
+	return &AuthClient{config: c}
 }
 
 // Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `thirdauth.Hooks(f(g(h())))`.
-func (c *ThirdAuthClient) Use(hooks ...Hook) {
-	c.hooks.ThirdAuth = append(c.hooks.ThirdAuth, hooks...)
+// A call to `Use(f, g, h)` equals to `auth.Hooks(f(g(h())))`.
+func (c *AuthClient) Use(hooks ...Hook) {
+	c.hooks.Auth = append(c.hooks.Auth, hooks...)
 }
 
-// Create returns a create builder for ThirdAuth.
-func (c *ThirdAuthClient) Create() *ThirdAuthCreate {
-	mutation := newThirdAuthMutation(c.config, OpCreate)
-	return &ThirdAuthCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Create returns a create builder for Auth.
+func (c *AuthClient) Create() *AuthCreate {
+	mutation := newAuthMutation(c.config, OpCreate)
+	return &AuthCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// CreateBulk returns a builder for creating a bulk of ThirdAuth entities.
-func (c *ThirdAuthClient) CreateBulk(builders ...*ThirdAuthCreate) *ThirdAuthCreateBulk {
-	return &ThirdAuthCreateBulk{config: c.config, builders: builders}
+// CreateBulk returns a builder for creating a bulk of Auth entities.
+func (c *AuthClient) CreateBulk(builders ...*AuthCreate) *AuthCreateBulk {
+	return &AuthCreateBulk{config: c.config, builders: builders}
 }
 
-// Update returns an update builder for ThirdAuth.
-func (c *ThirdAuthClient) Update() *ThirdAuthUpdate {
-	mutation := newThirdAuthMutation(c.config, OpUpdate)
-	return &ThirdAuthUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Update returns an update builder for Auth.
+func (c *AuthClient) Update() *AuthUpdate {
+	mutation := newAuthMutation(c.config, OpUpdate)
+	return &AuthUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *ThirdAuthClient) UpdateOne(ta *ThirdAuth) *ThirdAuthUpdateOne {
-	mutation := newThirdAuthMutation(c.config, OpUpdateOne, withThirdAuth(ta))
-	return &ThirdAuthUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *AuthClient) UpdateOne(a *Auth) *AuthUpdateOne {
+	mutation := newAuthMutation(c.config, OpUpdateOne, withAuth(a))
+	return &AuthUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *ThirdAuthClient) UpdateOneID(id uuid.UUID) *ThirdAuthUpdateOne {
-	mutation := newThirdAuthMutation(c.config, OpUpdateOne, withThirdAuthID(id))
-	return &ThirdAuthUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *AuthClient) UpdateOneID(id uuid.UUID) *AuthUpdateOne {
+	mutation := newAuthMutation(c.config, OpUpdateOne, withAuthID(id))
+	return &AuthUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// Delete returns a delete builder for ThirdAuth.
-func (c *ThirdAuthClient) Delete() *ThirdAuthDelete {
-	mutation := newThirdAuthMutation(c.config, OpDelete)
-	return &ThirdAuthDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Delete returns a delete builder for Auth.
+func (c *AuthClient) Delete() *AuthDelete {
+	mutation := newAuthMutation(c.config, OpDelete)
+	return &AuthDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // DeleteOne returns a delete builder for the given entity.
-func (c *ThirdAuthClient) DeleteOne(ta *ThirdAuth) *ThirdAuthDeleteOne {
-	return c.DeleteOneID(ta.ID)
+func (c *AuthClient) DeleteOne(a *Auth) *AuthDeleteOne {
+	return c.DeleteOneID(a.ID)
 }
 
 // DeleteOneID returns a delete builder for the given id.
-func (c *ThirdAuthClient) DeleteOneID(id uuid.UUID) *ThirdAuthDeleteOne {
-	builder := c.Delete().Where(thirdauth.ID(id))
+func (c *AuthClient) DeleteOneID(id uuid.UUID) *AuthDeleteOne {
+	builder := c.Delete().Where(auth.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
-	return &ThirdAuthDeleteOne{builder}
+	return &AuthDeleteOne{builder}
 }
 
-// Query returns a query builder for ThirdAuth.
-func (c *ThirdAuthClient) Query() *ThirdAuthQuery {
-	return &ThirdAuthQuery{
+// Query returns a query builder for Auth.
+func (c *AuthClient) Query() *AuthQuery {
+	return &AuthQuery{
 		config: c.config,
 	}
 }
 
-// Get returns a ThirdAuth entity by its id.
-func (c *ThirdAuthClient) Get(ctx context.Context, id uuid.UUID) (*ThirdAuth, error) {
-	return c.Query().Where(thirdauth.ID(id)).Only(ctx)
+// Get returns a Auth entity by its id.
+func (c *AuthClient) Get(ctx context.Context, id uuid.UUID) (*Auth, error) {
+	return c.Query().Where(auth.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *ThirdAuthClient) GetX(ctx context.Context, id uuid.UUID) *ThirdAuth {
+func (c *AuthClient) GetX(ctx context.Context, id uuid.UUID) *Auth {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -209,7 +216,98 @@ func (c *ThirdAuthClient) GetX(ctx context.Context, id uuid.UUID) *ThirdAuth {
 }
 
 // Hooks returns the client hooks.
-func (c *ThirdAuthClient) Hooks() []Hook {
-	hooks := c.hooks.ThirdAuth
-	return append(hooks[:len(hooks):len(hooks)], thirdauth.Hooks[:]...)
+func (c *AuthClient) Hooks() []Hook {
+	hooks := c.hooks.Auth
+	return append(hooks[:len(hooks):len(hooks)], auth.Hooks[:]...)
+}
+
+// ThirdPartyClient is a client for the ThirdParty schema.
+type ThirdPartyClient struct {
+	config
+}
+
+// NewThirdPartyClient returns a client for the ThirdParty from the given config.
+func NewThirdPartyClient(c config) *ThirdPartyClient {
+	return &ThirdPartyClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `thirdparty.Hooks(f(g(h())))`.
+func (c *ThirdPartyClient) Use(hooks ...Hook) {
+	c.hooks.ThirdParty = append(c.hooks.ThirdParty, hooks...)
+}
+
+// Create returns a create builder for ThirdParty.
+func (c *ThirdPartyClient) Create() *ThirdPartyCreate {
+	mutation := newThirdPartyMutation(c.config, OpCreate)
+	return &ThirdPartyCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of ThirdParty entities.
+func (c *ThirdPartyClient) CreateBulk(builders ...*ThirdPartyCreate) *ThirdPartyCreateBulk {
+	return &ThirdPartyCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for ThirdParty.
+func (c *ThirdPartyClient) Update() *ThirdPartyUpdate {
+	mutation := newThirdPartyMutation(c.config, OpUpdate)
+	return &ThirdPartyUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ThirdPartyClient) UpdateOne(tp *ThirdParty) *ThirdPartyUpdateOne {
+	mutation := newThirdPartyMutation(c.config, OpUpdateOne, withThirdParty(tp))
+	return &ThirdPartyUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ThirdPartyClient) UpdateOneID(id uuid.UUID) *ThirdPartyUpdateOne {
+	mutation := newThirdPartyMutation(c.config, OpUpdateOne, withThirdPartyID(id))
+	return &ThirdPartyUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for ThirdParty.
+func (c *ThirdPartyClient) Delete() *ThirdPartyDelete {
+	mutation := newThirdPartyMutation(c.config, OpDelete)
+	return &ThirdPartyDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a delete builder for the given entity.
+func (c *ThirdPartyClient) DeleteOne(tp *ThirdParty) *ThirdPartyDeleteOne {
+	return c.DeleteOneID(tp.ID)
+}
+
+// DeleteOneID returns a delete builder for the given id.
+func (c *ThirdPartyClient) DeleteOneID(id uuid.UUID) *ThirdPartyDeleteOne {
+	builder := c.Delete().Where(thirdparty.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ThirdPartyDeleteOne{builder}
+}
+
+// Query returns a query builder for ThirdParty.
+func (c *ThirdPartyClient) Query() *ThirdPartyQuery {
+	return &ThirdPartyQuery{
+		config: c.config,
+	}
+}
+
+// Get returns a ThirdParty entity by its id.
+func (c *ThirdPartyClient) Get(ctx context.Context, id uuid.UUID) (*ThirdParty, error) {
+	return c.Query().Where(thirdparty.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ThirdPartyClient) GetX(ctx context.Context, id uuid.UUID) *ThirdParty {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *ThirdPartyClient) Hooks() []Hook {
+	hooks := c.hooks.ThirdParty
+	return append(hooks[:len(hooks):len(hooks)], thirdparty.Hooks[:]...)
 }

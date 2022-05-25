@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
-	mw "github.com/NpoolPlatform/third-login-gateway/pkg/middleware/authlogin"
+	mw "github.com/NpoolPlatform/third-login-gateway/pkg/middleware/login"
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -18,12 +18,12 @@ func (s *Server) Login(ctx context.Context, in *npool.LoginRequest) (*npool.Logi
 		return nil, status.Error(codes.InvalidArgument, "code empty")
 	}
 
-	if in.GetThird() == "" {
-		logger.Sugar().Error("auth login error third is empty")
-		return nil, status.Error(codes.InvalidArgument, "third empty")
+	if _, err := uuid.Parse(in.GetThirdPartyID()); err != nil {
+		logger.Sugar().Errorf("invalid request app id: %v", err)
+		return &npool.LoginResponse{}, status.Error(codes.Internal, err.Error())
 	}
 
-	if _, err := uuid.Parse(in.AppID); err != nil {
+	if _, err := uuid.Parse(in.GetAppID()); err != nil {
 		logger.Sugar().Errorf("invalid request app id: %v", err)
 		return &npool.LoginResponse{}, status.Error(codes.Internal, err.Error())
 	}

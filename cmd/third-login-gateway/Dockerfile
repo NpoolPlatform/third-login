@@ -3,6 +3,7 @@ FROM jrei/systemd-centos:7
 WORKDIR /app
 
 COPY third-login-gateway /app
+COPY ThirdLoginGateway.viper /app
 
 ENTRYPOINT ["./third-login-gateway"]
 

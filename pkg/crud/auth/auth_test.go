@@ -1,4 +1,4 @@
-package thirdauth
+package auth
 
 import (
 	"context"
@@ -32,34 +32,34 @@ func TestCRUD(t *testing.T) {
 		return
 	}
 
-	thirdAuth := npool.ThirdAuth{
-		AppID:          uuid.New().String(),
-		Third:          uuid.New().String(),
-		ThirdAppKey:    uuid.New().String(),
-		ThirdAppSecret: uuid.New().String(),
-		LogoUrl:        uuid.New().String(),
-		RedirectUrl:    uuid.New().String(),
+	auth := npool.Auth{
+		ID:           uuid.New().String(),
+		AppID:        uuid.New().String(),
+		ThirdPartyID: uuid.New().String(),
+		AppKey:       uuid.New().String(),
+		AppSecret:    uuid.New().String(),
+		RedirectURL:  uuid.New().String(),
 	}
 
 	schema, err := New(context.Background(), nil)
 	assert.Nil(t, err)
 
-	info, err := schema.Create(context.Background(), &thirdAuth)
+	info, err := schema.Create(context.Background(), &auth)
 	if assert.Nil(t, err) {
 		if assert.NotEqual(t, info.ID, uuid.UUID{}.String()) {
-			thirdAuth.ID = info.ID
+			auth.ID = info.ID
 		}
-		assert.Equal(t, info, &thirdAuth)
+		assert.Equal(t, info, &auth)
 	}
 
-	thirdAuth.ID = info.ID
+	auth.ID = info.ID
 
 	schema, err = New(context.Background(), nil)
 	assert.Nil(t, err)
 
-	info, err = schema.Update(context.Background(), &thirdAuth)
+	info, err = schema.Update(context.Background(), &auth)
 	if assert.Nil(t, err) {
-		assert.Equal(t, info, &thirdAuth)
+		assert.Equal(t, info, &auth)
 	}
 
 	schema, err = New(context.Background(), nil)
@@ -70,7 +70,7 @@ func TestCRUD(t *testing.T) {
 		0, 0)
 	if assert.Nil(t, err) {
 		assert.Equal(t, total, 1)
-		assert.Equal(t, infos[0], &thirdAuth)
+		assert.Equal(t, infos[0], &auth)
 	}
 
 	schema, err = New(context.Background(), nil)
@@ -79,31 +79,31 @@ func TestCRUD(t *testing.T) {
 	info, err = schema.RowOnly(context.Background(),
 		cruder.NewConds().WithCond(constant.FieldID, cruder.EQ, info.ID))
 	if assert.Nil(t, err) {
-		assert.Equal(t, info, &thirdAuth)
+		assert.Equal(t, info, &auth)
 	}
 
 	schema, err = New(context.Background(), nil)
 	assert.Nil(t, err)
 
-	thirdAuth1 := &npool.ThirdAuth{
-		AppID:          uuid.New().String(),
-		Third:          uuid.New().String(),
-		ThirdAppKey:    uuid.New().String(),
-		ThirdAppSecret: uuid.New().String(),
-		LogoUrl:        uuid.New().String(),
-		RedirectUrl:    uuid.New().String(),
+	auth1 := &npool.Auth{
+		ID:           uuid.New().String(),
+		AppID:        uuid.New().String(),
+		ThirdPartyID: uuid.New().String(),
+		AppKey:       uuid.New().String(),
+		AppSecret:    uuid.New().String(),
+		RedirectURL:  uuid.New().String(),
 	}
 
-	thirdAuth2 := &npool.ThirdAuth{
-		AppID:          uuid.New().String(),
-		Third:          uuid.New().String(),
-		ThirdAppKey:    uuid.New().String(),
-		ThirdAppSecret: uuid.New().String(),
-		LogoUrl:        uuid.New().String(),
-		RedirectUrl:    uuid.New().String(),
+	auth2 := &npool.Auth{
+		ID:           uuid.New().String(),
+		AppID:        uuid.New().String(),
+		ThirdPartyID: uuid.New().String(),
+		AppKey:       uuid.New().String(),
+		AppSecret:    uuid.New().String(),
+		RedirectURL:  uuid.New().String(),
 	}
 
-	infos, err = schema.CreateBulk(context.Background(), []*npool.ThirdAuth{thirdAuth1, thirdAuth2})
+	infos, err = schema.CreateBulk(context.Background(), []*npool.Auth{auth1, auth2})
 	if assert.Nil(t, err) {
 		assert.Equal(t, len(infos), 2)
 		assert.NotEqual(t, infos[0].ID, uuid.UUID{}.String())

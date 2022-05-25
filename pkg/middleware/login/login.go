@@ -1,4 +1,4 @@
-package authlogin
+package login
 
 import (
 	"context"
@@ -10,29 +10,43 @@ import (
 	npool "github.com/NpoolPlatform/message/npool/thirdlogingateway"
 	oauth "github.com/NpoolPlatform/third-login-gateway/pkg/auth"
 	constant "github.com/NpoolPlatform/third-login-gateway/pkg/const"
-	crud "github.com/NpoolPlatform/third-login-gateway/pkg/crud/thirdauth"
+	authcrud "github.com/NpoolPlatform/third-login-gateway/pkg/crud/auth"
+	thirdpartycrud "github.com/NpoolPlatform/third-login-gateway/pkg/crud/thirdparty"
 	grpc2 "github.com/NpoolPlatform/third-login-gateway/pkg/grpc"
+	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 func Login(ctx context.Context, in *npool.LoginRequest) (*npool.LoginResponse, error) {
-	schema, err := crud.New(ctx, nil)
+	authSchema, err := authcrud.New(ctx, nil)
 	if err != nil {
 		logger.Sugar().Errorf("fail create schema entity: %v", err)
 		return &npool.LoginResponse{}, status.Error(codes.Internal, err.Error())
 	}
 
-	info, err := schema.RowOnly(ctx, cruder.NewConds().
-		WithCond(constant.ThirdAuthFieldAppID, cruder.EQ, in.GetAppID()).
-		WithCond(constant.ThirdAuthFieldThird, cruder.EQ, in.GetThird()))
+	authInfo, err := authSchema.RowOnly(ctx, cruder.NewConds().
+		WithCond(constant.AuthFieldAppID, cruder.EQ, in.GetAppID()).
+		WithCond(constant.AuthFieldThirdPartyID, cruder.EQ, in.GetThirdPartyID()))
 	if err != nil {
 		logger.Sugar().Errorf("fail get third auth: %v", err)
 		return &npool.LoginResponse{}, status.Error(codes.Internal, err.Error())
 	}
 
-	conf := &oauth.Config{ClientID: info.ThirdAppKey, ClientSecret: info.ThirdAppSecret, RedirectURL: info.RedirectUrl}
-	third, ok := oauth.ThirdMap[in.GetThird()]
+	thirdPartySchema, err := thirdpartycrud.New(ctx, nil)
+	if err != nil {
+		logger.Sugar().Errorf("fail create schema entity: %v", err)
+		return &npool.LoginResponse{}, status.Error(codes.Internal, err.Error())
+	}
+
+	thirdPartyInfo, err := thirdPartySchema.Row(ctx, uuid.MustParse(authInfo.GetThirdPartyID()))
+	if err != nil {
+		logger.Sugar().Errorf("fail get third auth: %v", err)
+		return &npool.LoginResponse{}, status.Error(codes.Internal, err.Error())
+	}
+
+	conf := &oauth.Config{ClientID: authInfo.AppKey, ClientSecret: authInfo.AppSecret, RedirectURL: authInfo.RedirectURL}
+	third, ok := oauth.ThirdMap[thirdPartyInfo.GetDomain()]
 	if !ok {
 		return &npool.LoginResponse{}, fmt.Errorf("login method does not exist")
 	}

@@ -102,5 +102,5 @@ replace google.golang.org/grpc => github.com/grpc/grpc-go v1.41.0
 
 replace (
 	github.com/NpoolPlatform/appuser-manager => github.com/NpoolPlatform/appuser-manager v0.0.0-20220518102322-fda5c6f5c73c
-	github.com/NpoolPlatform/message => github.com/NpoolPlatform/message v0.0.0-20220524120032-a9e462992c09
+	github.com/NpoolPlatform/message => github.com/NpoolPlatform/message v0.0.0-20220525102012-df9b834e7aa3
 )

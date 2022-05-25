@@ -5,8 +5,9 @@ package runtime
 import (
 	"context"
 
+	"github.com/NpoolPlatform/third-login-gateway/pkg/db/ent/auth"
 	"github.com/NpoolPlatform/third-login-gateway/pkg/db/ent/schema"
-	"github.com/NpoolPlatform/third-login-gateway/pkg/db/ent/thirdauth"
+	"github.com/NpoolPlatform/third-login-gateway/pkg/db/ent/thirdparty"
 	"github.com/google/uuid"
 
 	"entgo.io/ent"
@@ -17,38 +18,70 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
-	thirdauthMixin := schema.ThirdAuth{}.Mixin()
-	thirdauth.Policy = privacy.NewPolicies(thirdauthMixin[0], schema.ThirdAuth{})
-	thirdauth.Hooks[0] = func(next ent.Mutator) ent.Mutator {
+	authMixin := schema.Auth{}.Mixin()
+	auth.Policy = privacy.NewPolicies(authMixin[0], schema.Auth{})
+	auth.Hooks[0] = func(next ent.Mutator) ent.Mutator {
 		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-			if err := thirdauth.Policy.EvalMutation(ctx, m); err != nil {
+			if err := auth.Policy.EvalMutation(ctx, m); err != nil {
 				return nil, err
 			}
 			return next.Mutate(ctx, m)
 		})
 	}
-	thirdauthMixinFields0 := thirdauthMixin[0].Fields()
-	_ = thirdauthMixinFields0
-	thirdauthFields := schema.ThirdAuth{}.Fields()
-	_ = thirdauthFields
-	// thirdauthDescCreatedAt is the schema descriptor for created_at field.
-	thirdauthDescCreatedAt := thirdauthMixinFields0[0].Descriptor()
-	// thirdauth.DefaultCreatedAt holds the default value on creation for the created_at field.
-	thirdauth.DefaultCreatedAt = thirdauthDescCreatedAt.Default.(func() uint32)
-	// thirdauthDescUpdatedAt is the schema descriptor for updated_at field.
-	thirdauthDescUpdatedAt := thirdauthMixinFields0[1].Descriptor()
-	// thirdauth.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	thirdauth.DefaultUpdatedAt = thirdauthDescUpdatedAt.Default.(func() uint32)
-	// thirdauth.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
-	thirdauth.UpdateDefaultUpdatedAt = thirdauthDescUpdatedAt.UpdateDefault.(func() uint32)
-	// thirdauthDescDeletedAt is the schema descriptor for deleted_at field.
-	thirdauthDescDeletedAt := thirdauthMixinFields0[2].Descriptor()
-	// thirdauth.DefaultDeletedAt holds the default value on creation for the deleted_at field.
-	thirdauth.DefaultDeletedAt = thirdauthDescDeletedAt.Default.(func() uint32)
-	// thirdauthDescID is the schema descriptor for id field.
-	thirdauthDescID := thirdauthFields[0].Descriptor()
-	// thirdauth.DefaultID holds the default value on creation for the id field.
-	thirdauth.DefaultID = thirdauthDescID.Default.(func() uuid.UUID)
+	authMixinFields0 := authMixin[0].Fields()
+	_ = authMixinFields0
+	authFields := schema.Auth{}.Fields()
+	_ = authFields
+	// authDescCreatedAt is the schema descriptor for created_at field.
+	authDescCreatedAt := authMixinFields0[0].Descriptor()
+	// auth.DefaultCreatedAt holds the default value on creation for the created_at field.
+	auth.DefaultCreatedAt = authDescCreatedAt.Default.(func() uint32)
+	// authDescUpdatedAt is the schema descriptor for updated_at field.
+	authDescUpdatedAt := authMixinFields0[1].Descriptor()
+	// auth.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	auth.DefaultUpdatedAt = authDescUpdatedAt.Default.(func() uint32)
+	// auth.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	auth.UpdateDefaultUpdatedAt = authDescUpdatedAt.UpdateDefault.(func() uint32)
+	// authDescDeletedAt is the schema descriptor for deleted_at field.
+	authDescDeletedAt := authMixinFields0[2].Descriptor()
+	// auth.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	auth.DefaultDeletedAt = authDescDeletedAt.Default.(func() uint32)
+	// authDescID is the schema descriptor for id field.
+	authDescID := authFields[0].Descriptor()
+	// auth.DefaultID holds the default value on creation for the id field.
+	auth.DefaultID = authDescID.Default.(func() uuid.UUID)
+	thirdpartyMixin := schema.ThirdParty{}.Mixin()
+	thirdparty.Policy = privacy.NewPolicies(thirdpartyMixin[0], schema.ThirdParty{})
+	thirdparty.Hooks[0] = func(next ent.Mutator) ent.Mutator {
+		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+			if err := thirdparty.Policy.EvalMutation(ctx, m); err != nil {
+				return nil, err
+			}
+			return next.Mutate(ctx, m)
+		})
+	}
+	thirdpartyMixinFields0 := thirdpartyMixin[0].Fields()
+	_ = thirdpartyMixinFields0
+	thirdpartyFields := schema.ThirdParty{}.Fields()
+	_ = thirdpartyFields
+	// thirdpartyDescCreatedAt is the schema descriptor for created_at field.
+	thirdpartyDescCreatedAt := thirdpartyMixinFields0[0].Descriptor()
+	// thirdparty.DefaultCreatedAt holds the default value on creation for the created_at field.
+	thirdparty.DefaultCreatedAt = thirdpartyDescCreatedAt.Default.(func() uint32)
+	// thirdpartyDescUpdatedAt is the schema descriptor for updated_at field.
+	thirdpartyDescUpdatedAt := thirdpartyMixinFields0[1].Descriptor()
+	// thirdparty.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	thirdparty.DefaultUpdatedAt = thirdpartyDescUpdatedAt.Default.(func() uint32)
+	// thirdparty.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	thirdparty.UpdateDefaultUpdatedAt = thirdpartyDescUpdatedAt.UpdateDefault.(func() uint32)
+	// thirdpartyDescDeletedAt is the schema descriptor for deleted_at field.
+	thirdpartyDescDeletedAt := thirdpartyMixinFields0[2].Descriptor()
+	// thirdparty.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	thirdparty.DefaultDeletedAt = thirdpartyDescDeletedAt.Default.(func() uint32)
+	// thirdpartyDescID is the schema descriptor for id field.
+	thirdpartyDescID := thirdpartyFields[0].Descriptor()
+	// thirdparty.DefaultID holds the default value on creation for the id field.
+	thirdparty.DefaultID = thirdpartyDescID.Default.(func() uuid.UUID)
 }
 
 const (

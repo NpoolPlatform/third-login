@@ -8,7 +8,8 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/NpoolPlatform/third-login-gateway/pkg/db/ent/thirdauth"
+	"github.com/NpoolPlatform/third-login-gateway/pkg/db/ent/auth"
+	"github.com/NpoolPlatform/third-login-gateway/pkg/db/ent/thirdparty"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -29,7 +30,8 @@ type OrderFunc func(*sql.Selector)
 // columnChecker returns a function indicates if the column exists in the given column.
 func columnChecker(table string) func(string) error {
 	checks := map[string]func(string) bool{
-		thirdauth.Table: thirdauth.ValidColumn,
+		auth.Table:       auth.ValidColumn,
+		thirdparty.Table: thirdparty.ValidColumn,
 	}
 	check, ok := checks[table]
 	if !ok {

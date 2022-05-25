@@ -8,28 +8,44 @@ import (
 )
 
 var (
-	// ThirdAuthsColumns holds the columns for the "third_auths" table.
-	ThirdAuthsColumns = []*schema.Column{
+	// AuthsColumns holds the columns for the "auths" table.
+	AuthsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeUint32},
 		{Name: "updated_at", Type: field.TypeUint32},
 		{Name: "deleted_at", Type: field.TypeUint32},
 		{Name: "app_id", Type: field.TypeUUID},
-		{Name: "third", Type: field.TypeString},
-		{Name: "logo_url", Type: field.TypeString},
-		{Name: "third_app_key", Type: field.TypeString},
-		{Name: "third_app_secret", Type: field.TypeString},
+		{Name: "third_party_id", Type: field.TypeUUID},
+		{Name: "app_key", Type: field.TypeString},
+		{Name: "app_secret", Type: field.TypeString},
 		{Name: "redirect_url", Type: field.TypeString},
 	}
-	// ThirdAuthsTable holds the schema information for the "third_auths" table.
-	ThirdAuthsTable = &schema.Table{
-		Name:       "third_auths",
-		Columns:    ThirdAuthsColumns,
-		PrimaryKey: []*schema.Column{ThirdAuthsColumns[0]},
+	// AuthsTable holds the schema information for the "auths" table.
+	AuthsTable = &schema.Table{
+		Name:       "auths",
+		Columns:    AuthsColumns,
+		PrimaryKey: []*schema.Column{AuthsColumns[0]},
+	}
+	// ThirdPartiesColumns holds the columns for the "third_parties" table.
+	ThirdPartiesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID, Unique: true},
+		{Name: "created_at", Type: field.TypeUint32},
+		{Name: "updated_at", Type: field.TypeUint32},
+		{Name: "deleted_at", Type: field.TypeUint32},
+		{Name: "brand_name", Type: field.TypeString},
+		{Name: "logo", Type: field.TypeString},
+		{Name: "domain", Type: field.TypeString},
+	}
+	// ThirdPartiesTable holds the schema information for the "third_parties" table.
+	ThirdPartiesTable = &schema.Table{
+		Name:       "third_parties",
+		Columns:    ThirdPartiesColumns,
+		PrimaryKey: []*schema.Column{ThirdPartiesColumns[0]},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
-		ThirdAuthsTable,
+		AuthsTable,
+		ThirdPartiesTable,
 	}
 )
 

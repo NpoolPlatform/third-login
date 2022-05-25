@@ -6,5 +6,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
-// ThirdAuth is the predicate function for thirdauth builders.
-type ThirdAuth func(*sql.Selector)
+// Auth is the predicate function for auth builders.
+type Auth func(*sql.Selector)
+
+// ThirdParty is the predicate function for thirdparty builders.
+type ThirdParty func(*sql.Selector)
