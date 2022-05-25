@@ -6,7 +6,6 @@ import (
 	"errors"
 	"os"
 
-	appuserconst "github.com/NpoolPlatform/appuser-manager/pkg/const"
 	appusermgrpb "github.com/NpoolPlatform/message/npool/appusermgr"
 	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
@@ -81,10 +80,10 @@ func (a *GoogleAuth) GetAccessToken(ctx context.Context, code string, config *Co
 	return googleRes.AccessToken, nil
 }
 
-func (a *GoogleAuth) GetUserInfo(ctx context.Context, code string, config *Config) (*appusermgrpb.AppUserThird, error) {
+func (a *GoogleAuth) GetUserInfo(ctx context.Context, code string, config *Config) (*appusermgrpb.AppUserThirdParty, error) {
 	token, err := a.GetAccessToken(ctx, code, config)
 	if err != nil {
-		return &appusermgrpb.AppUserThird{}, err
+		return &appusermgrpb.AppUserThirdParty{}, err
 	}
 	url := a.GoogleUserInfoURL
 	client := resty.New()
@@ -97,27 +96,26 @@ func (a *GoogleAuth) GetUserInfo(ctx context.Context, code string, config *Confi
 		SetAuthToken(token).
 		Get(url)
 	if err != nil {
-		return &appusermgrpb.AppUserThird{}, err
+		return &appusermgrpb.AppUserThirdParty{}, err
 	}
 	successCode := 200
 	if resp.StatusCode() != successCode {
 		googleRes := GoogleErrRes{}
 		err = json.Unmarshal(resp.Body(), &googleRes)
 		if err != nil {
-			return &appusermgrpb.AppUserThird{}, err
+			return &appusermgrpb.AppUserThirdParty{}, err
 		}
-		return &appusermgrpb.AppUserThird{}, errors.New(googleRes.ErrorDescription)
+		return &appusermgrpb.AppUserThirdParty{}, errors.New(googleRes.ErrorDescription)
 	}
 	googleRes := GoogleUserInfoRes{}
 	err = json.Unmarshal(resp.Body(), &googleRes)
 	if err != nil {
 		return nil, err
 	}
-	return &appusermgrpb.AppUserThird{
-		ThirdUserID:     googleRes.ID,
-		ThirdUserName:   googleRes.Email,
-		ThirdUserAvatar: googleRes.Picture,
-		Third:           appuserconst.ThirdGoogle,
-		ThirdID:         config.ClientID,
+	return &appusermgrpb.AppUserThirdParty{
+		ThirdPartyUserID:     googleRes.ID,
+		ThirdPartyUserName:   googleRes.Email,
+		ThirdPartyUserAvatar: googleRes.Picture,
+		ThirdPartyID:         config.ClientID,
 	}, nil
 }

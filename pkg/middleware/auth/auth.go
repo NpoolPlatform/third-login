@@ -16,23 +16,23 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func GetAuths(ctx context.Context, in *npool.GetAuthsRequest) (*npool.GetAuthsResponse, error) {
+func GetAuths(ctx context.Context, appID string) ([]*npool.Auth, error) {
 	authSchema, err := authcrud.New(ctx, nil)
 	if err != nil {
 		logger.Sugar().Errorf("fail create schema entity: %v", err)
-		return &npool.GetAuthsResponse{}, status.Error(codes.Internal, err.Error())
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	authInfos, _, err := authSchema.Rows(ctx, cruder.NewConds().WithCond(constant.AuthFieldAppID, cruder.EQ, in.GetAppID()), 0, 0)
+	authInfos, _, err := authSchema.Rows(ctx, cruder.NewConds().WithCond(constant.AuthFieldAppID, cruder.EQ, appID), 0, 0)
 	if err != nil {
 		logger.Sugar().Errorf("fail get auth: %v", err)
-		return &npool.GetAuthsResponse{}, status.Error(codes.Internal, err.Error())
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	thirdPartySchema, err := thirdpartycrud.New(ctx, nil)
 	if err != nil {
 		logger.Sugar().Errorf("fail create schema entity: %v", err)
-		return &npool.GetAuthsResponse{}, status.Error(codes.Internal, err.Error())
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	var authList []*npool.Auth
@@ -41,16 +41,16 @@ func GetAuths(ctx context.Context, in *npool.GetAuthsRequest) (*npool.GetAuthsRe
 		thirdPartyInfo, err := thirdPartySchema.Row(ctx, uuid.MustParse(val.GetThirdPartyID()))
 		if err != nil {
 			logger.Sugar().Errorf("fail get auth: %v", err)
-			return &npool.GetAuthsResponse{}, status.Error(codes.Internal, err.Error())
+			return nil, status.Error(codes.Internal, err.Error())
 		}
 		platform, ok := oauth.ThirdMap[thirdPartyInfo.GetDomain()]
 		if !ok {
-			return &npool.GetAuthsResponse{}, fmt.Errorf("login method does not exist")
+			return nil, fmt.Errorf("login method does not exist")
 		}
 		thirdMethod := oauth.NewContext(platform)
 		url, err := thirdMethod.GetRedirectURL(conf)
 		if err != nil {
-			return &npool.GetAuthsResponse{}, err
+			return nil, err
 		}
 		authList = append(authList, &npool.Auth{
 			AppID:        val.GetAppID(),
@@ -58,17 +58,5 @@ func GetAuths(ctx context.Context, in *npool.GetAuthsRequest) (*npool.GetAuthsRe
 			AuthURL:      url,
 		})
 	}
-	return &npool.GetAuthsResponse{
-		Infos: authList,
-	}, nil
-}
-
-func GetAppAuths(ctx context.Context, in *npool.GetAppAuthsRequest) (*npool.GetAppAuthsResponse, error) {
-	resp, err := GetAuths(ctx, &npool.GetAuthsRequest{AppID: in.GetTargetAppID()})
-	if err != nil {
-		return nil, err
-	}
-	return &npool.GetAppAuthsResponse{
-		Infos: resp.GetInfos(),
-	}, err
+	return authList, nil
 }

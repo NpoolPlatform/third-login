@@ -95,7 +95,6 @@ func TestCRUD(t *testing.T) {
 		ID:        uuid.New().String(),
 		BrandName: uuid.New().String(),
 		Logo:      uuid.New().String(),
-		AuthBase:  uuid.New().String(),
 		Domain:    uuid.New().String(),
 	}
 
@@ -103,7 +102,6 @@ func TestCRUD(t *testing.T) {
 		ID:        uuid.New().String(),
 		BrandName: uuid.New().String(),
 		Logo:      uuid.New().String(),
-		AuthBase:  uuid.New().String(),
 		Domain:    uuid.New().String(),
 	}
 

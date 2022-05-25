@@ -4,10 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"os"
 
-	appuserconst "github.com/NpoolPlatform/appuser-manager/pkg/const"
 	appusermgrpb "github.com/NpoolPlatform/message/npool/appusermgr"
 	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
@@ -66,9 +64,6 @@ func (a *FaceBookAuth) GetAccessToken(ctx context.Context, code string, config *
 	if err != nil {
 		return "", err
 	}
-	fmt.Println("***************************")
-	fmt.Println(resp.StatusCode())
-	fmt.Println(string(resp.Body()))
 	successCode := 200
 	if resp.StatusCode() != successCode {
 		facebookRes := FaceBookErrRes{}
@@ -87,10 +82,10 @@ func (a *FaceBookAuth) GetAccessToken(ctx context.Context, code string, config *
 	return faceBookRes.AccessToken, err
 }
 
-func (a *FaceBookAuth) GetUserInfo(ctx context.Context, code string, config *Config) (*appusermgrpb.AppUserThird, error) {
+func (a *FaceBookAuth) GetUserInfo(ctx context.Context, code string, config *Config) (*appusermgrpb.AppUserThirdParty, error) {
 	token, err := a.GetAccessToken(ctx, code, config)
 	if err != nil {
-		return &appusermgrpb.AppUserThird{}, err
+		return &appusermgrpb.AppUserThirdParty{}, err
 	}
 	url := NewURLBuilder(a.FaceBookUserInfoURL).
 		AddParam("fields", "id,name,picture").
@@ -106,27 +101,26 @@ func (a *FaceBookAuth) GetUserInfo(ctx context.Context, code string, config *Con
 		SetAuthToken(token).
 		Get(url)
 	if err != nil {
-		return &appusermgrpb.AppUserThird{}, err
+		return &appusermgrpb.AppUserThirdParty{}, err
 	}
 	successCode := 200
 	if resp.StatusCode() != successCode {
 		facebookRes := FaceBookErrRes{}
 		err = json.Unmarshal(resp.Body(), &facebookRes)
 		if err != nil {
-			return &appusermgrpb.AppUserThird{}, err
+			return &appusermgrpb.AppUserThirdParty{}, err
 		}
-		return &appusermgrpb.AppUserThird{}, errors.New(facebookRes.Error.Message)
+		return &appusermgrpb.AppUserThirdParty{}, errors.New(facebookRes.Error.Message)
 	}
 	faceBookRes := FaceBookUserInfoRes{}
 	err = json.Unmarshal(resp.Body(), &faceBookRes)
 	if err != nil {
 		return nil, err
 	}
-	return &appusermgrpb.AppUserThird{
-		ThirdUserID:     faceBookRes.ID,
-		ThirdUserName:   faceBookRes.Name,
-		ThirdUserAvatar: faceBookRes.Picture.Date.URL,
-		Third:           appuserconst.ThirdFaceBook,
-		ThirdID:         config.ClientID,
+	return &appusermgrpb.AppUserThirdParty{
+		ThirdPartyUserID:     faceBookRes.ID,
+		ThirdPartyUserName:   faceBookRes.Name,
+		ThirdPartyUserAvatar: faceBookRes.Picture.Date.URL,
+		ThirdPartyID:         config.ClientID,
 	}, nil
 }

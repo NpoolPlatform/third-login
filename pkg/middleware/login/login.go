@@ -57,17 +57,17 @@ func Login(ctx context.Context, in *npool.LoginRequest) (*npool.LoginResponse, e
 	}
 	thirdUser.AppID = in.GetAppID()
 
-	var tUser *appusermgrpb.AppUserThird
-	tUser, err = grpc2.GetAppUserThirdByAppThird(ctx, &appusermgrpb.GetAppUserThirdByAppThirdRequest{
-		AppID:       thirdUser.AppID,
-		ThirdID:     thirdUser.ThirdID,
-		ThirdUserID: thirdUser.ThirdUserID,
+	var tUser *appusermgrpb.AppUserThirdParty
+	tUser, err = grpc2.GetAppUserThirdByAppThird(ctx, &appusermgrpb.GetAppUserThirdPartyByAppThirdPartyIDRequest{
+		AppID:            thirdUser.AppID,
+		ThirdPartyID:     thirdUser.ThirdPartyID,
+		ThirdPartyUserID: thirdUser.ThirdPartyUserID,
 	})
 	if err != nil {
 		return &npool.LoginResponse{}, err
 	}
 	if tUser == nil {
-		user, err := grpc2.CreateAppUserWithThird(ctx, &appusermgrpb.CreateAppUserWithThirdRequest{
+		user, err := grpc2.CreateAppUserWithThird(ctx, &appusermgrpb.CreateAppUserWithThirdPartyRequest{
 			User: &appusermgrpb.AppUser{
 				AppID: thirdUser.AppID,
 			},

@@ -18,12 +18,14 @@ func (s *Server) GetAuths(ctx context.Context, in *npool.GetAuthsRequest) (*npoo
 		logger.Sugar().Errorf("invalid request app id: %v", err)
 		return &npool.GetAuthsResponse{}, status.Error(codes.Internal, err.Error())
 	}
-	resp, err := mw.GetAuths(ctx, in)
+	resp, err := mw.GetAuths(ctx, in.GetAppID())
 	if err != nil {
 		logger.Sugar().Errorw("get third auth error: %v", err)
 		return &npool.GetAuthsResponse{}, status.Error(codes.Internal, "internal server error")
 	}
-	return resp, nil
+	return &npool.GetAuthsResponse{
+		Infos: resp,
+	}, nil
 }
 
 func (s *Server) GetAppAuths(ctx context.Context, in *npool.GetAppAuthsRequest) (*npool.GetAppAuthsResponse, error) {
@@ -31,12 +33,14 @@ func (s *Server) GetAppAuths(ctx context.Context, in *npool.GetAppAuthsRequest) 
 		logger.Sugar().Errorf("invalid request target app id: %v", err)
 		return &npool.GetAppAuthsResponse{}, status.Error(codes.Internal, err.Error())
 	}
-	resp, err := mw.GetAppAuths(ctx, in)
+	resp, err := mw.GetAuths(ctx, in.GetTargetAppID())
 	if err != nil {
 		logger.Sugar().Errorw("get third auth error: %v", err)
 		return &npool.GetAppAuthsResponse{}, status.Error(codes.Internal, "internal server error")
 	}
-	return resp, nil
+	return &npool.GetAppAuthsResponse{
+		Infos: resp,
+	}, nil
 }
 
 func checkAuthInfo(info *npool.Auth) error {
@@ -114,6 +118,11 @@ func (s *Server) CreateAppAuth(ctx context.Context, in *npool.CreateAppAuthReque
 	if err != nil {
 		return &npool.CreateAppAuthResponse{}, err
 	}
+	if _, err := uuid.Parse(in.GetTargetAppID()); err != nil {
+		logger.Sugar().Errorf("invalid request target app id: %v", err)
+		return &npool.CreateAppAuthResponse{}, status.Error(codes.Internal, err.Error())
+	}
+	in.GetInfo().AppID = in.GetTargetAppID()
 	info, err := schema.Create(context.Background(), in.GetInfo())
 	if err != nil {
 		return &npool.CreateAppAuthResponse{}, err
@@ -124,11 +133,12 @@ func (s *Server) CreateAppAuth(ctx context.Context, in *npool.CreateAppAuthReque
 }
 
 func (s *Server) CreateAppAuths(ctx context.Context, in *npool.CreateAppAuthsRequest) (*npool.CreateAppAuthsResponse, error) {
-	for _, val := range in.GetInfos() {
+	for key, val := range in.GetInfos() {
 		err := checkAuthInfo(val)
 		if err != nil {
 			return &npool.CreateAppAuthsResponse{}, err
 		}
+		in.GetInfos()[key].AppID = in.GetTargetAppID()
 	}
 	schema, err := crud.New(context.Background(), nil)
 	if err != nil {

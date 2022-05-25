@@ -19,7 +19,7 @@ func (s *Server) Login(ctx context.Context, in *npool.LoginRequest) (*npool.Logi
 	}
 
 	if _, err := uuid.Parse(in.GetThirdPartyID()); err != nil {
-		logger.Sugar().Errorf("invalid request app id: %v", err)
+		logger.Sugar().Errorf("invalid request third party id: %v", err)
 		return &npool.LoginResponse{}, status.Error(codes.Internal, err.Error())
 	}
 

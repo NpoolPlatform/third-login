@@ -127,7 +127,7 @@ func (s *Auth) Rows(ctx context.Context, conds cruder.Conds, offset, limit int) 
 
 		rows, err = stm.
 			Offset(offset).
-			Order(ent.Desc("updated_at")).
+			Order(ent.Desc(auth.FieldUpdatedAt)).
 			Limit(limit).
 			All(_ctx)
 		if err != nil {
@@ -179,6 +179,12 @@ func (s *Auth) queryFromConds(conds cruder.Conds) (*ent.AuthQuery, error) {
 			id, err := cruder.AnyTypeUUID(v.Val)
 			if err != nil {
 				return nil, fmt.Errorf("invalid id: %v", err)
+			}
+			stm = stm.Where(auth.ID(id))
+		case constant.AuthFieldAppID:
+			id, err := cruder.AnyTypeUUID(v.Val)
+			if err != nil {
+				return nil, fmt.Errorf("invalid app id: %v", err)
 			}
 			stm = stm.Where(auth.ID(id))
 		default:

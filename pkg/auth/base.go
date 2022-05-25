@@ -36,7 +36,7 @@ func init() {
 }
 
 type ThirdMethod interface {
-	GetUserInfo(ctx context.Context, code string, config *Config) (*appusermgrpb.AppUserThird, error)
+	GetUserInfo(ctx context.Context, code string, config *Config) (*appusermgrpb.AppUserThirdParty, error)
 	GetRedirectURL(config *Config) (string, error)
 }
 

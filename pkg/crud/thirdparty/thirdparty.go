@@ -119,7 +119,7 @@ func (s *ThirdParty) Rows(ctx context.Context, conds cruder.Conds, offset, limit
 
 		rows, err = stm.
 			Offset(offset).
-			Order(ent.Desc("updated_at")).
+			Order(ent.Desc(thirdparty.FieldUpdatedAt)).
 			Limit(limit).
 			All(_ctx)
 		if err != nil {

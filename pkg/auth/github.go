@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"os"
 
-	appuserconst "github.com/NpoolPlatform/appuser-manager/pkg/const"
 	appusermgrpb "github.com/NpoolPlatform/message/npool/appusermgr"
 	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
@@ -72,10 +71,10 @@ func (a *GitHubAuth) GetAccessToken(ctx context.Context, code string, config *Co
 	return gitHubRes.AccessToken, err
 }
 
-func (a *GitHubAuth) GetUserInfo(ctx context.Context, code string, config *Config) (*appusermgrpb.AppUserThird, error) {
+func (a *GitHubAuth) GetUserInfo(ctx context.Context, code string, config *Config) (*appusermgrpb.AppUserThirdParty, error) {
 	token, err := a.GetAccessToken(ctx, code, config)
 	if err != nil {
-		return &appusermgrpb.AppUserThird{}, err
+		return &appusermgrpb.AppUserThirdParty{}, err
 	}
 	url := a.GithubUserInfoURL
 
@@ -89,7 +88,7 @@ func (a *GitHubAuth) GetUserInfo(ctx context.Context, code string, config *Confi
 		SetAuthToken(token).
 		Get(url)
 	if err != nil {
-		return &appusermgrpb.AppUserThird{}, err
+		return &appusermgrpb.AppUserThirdParty{}, err
 	}
 
 	gitHubRes := GitHubUserInfoRes{}
@@ -98,13 +97,12 @@ func (a *GitHubAuth) GetUserInfo(ctx context.Context, code string, config *Confi
 		return nil, err
 	}
 	if gitHubRes.Error != "" {
-		return &appusermgrpb.AppUserThird{}, errors.New(gitHubRes.ErrorDescription)
+		return &appusermgrpb.AppUserThirdParty{}, errors.New(gitHubRes.ErrorDescription)
 	}
-	return &appusermgrpb.AppUserThird{
-		ThirdUserID:     fmt.Sprintf("%v", gitHubRes.ID),
-		ThirdUserName:   gitHubRes.Login,
-		ThirdUserAvatar: gitHubRes.AvatarURL,
-		Third:           appuserconst.ThirdGithub,
-		ThirdID:         config.ClientID,
+	return &appusermgrpb.AppUserThirdParty{
+		ThirdPartyUserID:     fmt.Sprintf("%v", gitHubRes.ID),
+		ThirdPartyUserName:   gitHubRes.Login,
+		ThirdPartyUserAvatar: gitHubRes.AvatarURL,
+		ThirdPartyID:         config.ClientID,
 	}, nil
 }

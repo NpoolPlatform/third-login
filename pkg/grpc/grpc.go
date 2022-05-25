@@ -32,9 +32,11 @@ func doAppUser(ctx context.Context, fn handle) (cruder.Any, error) {
 	return fn(_ctx, cli)
 }
 
-func GetAppUserThirdByAppThird(ctx context.Context, in *appusermgrpb.GetAppUserThirdByAppThirdRequest) (*appusermgrpb.AppUserThird, error) {
+func GetAppUserThirdByAppThird(ctx context.Context,
+	in *appusermgrpb.GetAppUserThirdPartyByAppThirdPartyIDRequest) (*appusermgrpb.AppUserThirdParty,
+	error) {
 	info, err := doAppUser(ctx, func(_ctx context.Context, cli appusermgrpb.AppUserManagerClient) (cruder.Any, error) {
-		resp, err := cli.GetAppUserThirdByAppThird(ctx, in)
+		resp, err := cli.GetAppUserThirdPartyByAppThirdPartyID(ctx, in)
 		if err != nil {
 			return nil, fmt.Errorf("fail get app user third: %v", err)
 		}
@@ -43,12 +45,12 @@ func GetAppUserThirdByAppThird(ctx context.Context, in *appusermgrpb.GetAppUserT
 	if err != nil {
 		return nil, fmt.Errorf("fail get app user third: %v", err)
 	}
-	return info.(*appusermgrpb.AppUserThird), nil
+	return info.(*appusermgrpb.AppUserThirdParty), nil
 }
 
-func CreateAppUserWithThird(ctx context.Context, in *appusermgrpb.CreateAppUserWithThirdRequest) (*appusermgrpb.AppUser, error) {
+func CreateAppUserWithThird(ctx context.Context, in *appusermgrpb.CreateAppUserWithThirdPartyRequest) (*appusermgrpb.AppUser, error) {
 	info, err := doAppUser(ctx, func(_ctx context.Context, cli appusermgrpb.AppUserManagerClient) (cruder.Any, error) {
-		resp, err := cli.CreateAppUserWithThird(ctx, in)
+		resp, err := cli.CreateAppUserWithThirdParty(ctx, in)
 		if err != nil {
 			return nil, fmt.Errorf("fail create app user with third: %v", err)
 		}
