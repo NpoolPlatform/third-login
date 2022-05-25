@@ -1,4 +1,6 @@
-//nolint:dupl
+//go:build !codeanalysis
+// +build !codeanalysis
+
 package api
 
 import (
