@@ -15,7 +15,6 @@ metadata:
       kube-system-headers-userid-to-body@kubernetescrd,
       kube-system-headers-app-login-token-to-body@kubernetescrd,
       kube-system-app-rbac-auth@kubernetescrd
-
 spec:
   rules:
     - host: api.npool.top
