@@ -143,7 +143,6 @@ func (s *ThirdParty) Rows(ctx context.Context, conds cruder.Conds, offset, limit
 func (s *ThirdParty) Row(ctx context.Context, id uuid.UUID) (*npool.ThirdParty, error) {
 	var info *ent.ThirdParty
 	var err error
-
 	err = db.WithTx(ctx, s.Tx, func(_ctx context.Context) error {
 		info, err = s.Tx.ThirdParty.Query().Where(thirdparty.ID(id)).Only(_ctx)
 		return err

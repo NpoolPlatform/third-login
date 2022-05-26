@@ -29,14 +29,13 @@ func GetAuths(ctx context.Context, appID string) ([]*npool.Auth, error) {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	thirdPartySchema, err := thirdpartycrud.New(ctx, nil)
-	if err != nil {
-		logger.Sugar().Errorf("fail create schema entity: %v", err)
-		return nil, status.Error(codes.Internal, err.Error())
-	}
-
 	var authList []*npool.Auth
 	for _, val := range authInfos {
+		thirdPartySchema, err := thirdpartycrud.New(ctx, nil)
+		if err != nil {
+			logger.Sugar().Errorf("fail create schema entity: %v", err)
+			return nil, status.Error(codes.Internal, err.Error())
+		}
 		conf := &oauth.Config{ClientID: val.GetAppKey(), ClientSecret: val.GetAppSecret(), RedirectURL: val.GetRedirectURL()}
 		thirdPartyInfo, err := thirdPartySchema.Row(ctx, uuid.MustParse(val.GetThirdPartyID()))
 		if err != nil {

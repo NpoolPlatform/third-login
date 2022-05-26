@@ -32,3 +32,8 @@
 ### 关于mysql
 * 创建app后，从app.Mysql()获取本地mysql client
 * [文档参考](https://entgo.io/docs/sql-integration)
+
+### 第三方平台应用注册地址
+* [github](https://github.com/settings/developers)
+* [google](https://console.cloud.google.com/apis/dashboard)
+* [facebook](https://developers.facebook.com/apps/?show_reminder=true)

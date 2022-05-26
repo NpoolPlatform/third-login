@@ -186,7 +186,7 @@ func (s *Auth) queryFromConds(conds cruder.Conds) (*ent.AuthQuery, error) {
 			if err != nil {
 				return nil, fmt.Errorf("invalid app id: %v", err)
 			}
-			stm = stm.Where(auth.ID(id))
+			stm = stm.Where(auth.AppID(id))
 		default:
 			return nil, fmt.Errorf("invalid auth field")
 		}

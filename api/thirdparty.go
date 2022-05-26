@@ -10,6 +10,7 @@ import (
 	npool "github.com/NpoolPlatform/message/npool/thirdlogingateway"
 	"github.com/NpoolPlatform/third-login-gateway/pkg/auth"
 	crud "github.com/NpoolPlatform/third-login-gateway/pkg/crud/thirdparty"
+	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -17,7 +18,7 @@ import (
 func checkThirdPartyInfo(info *npool.ThirdParty) error {
 	if info.GetBrandName() == "" {
 		logger.Sugar().Error("brand name is empty")
-		return fmt.Errorf("app key empty")
+		return fmt.Errorf("brand name is empty")
 	}
 
 	if info.GetLogo() == "" {
@@ -25,7 +26,7 @@ func checkThirdPartyInfo(info *npool.ThirdParty) error {
 		return fmt.Errorf("logo empty")
 	}
 
-	if _, ok := auth.ThirdMap[info.GetDomain()]; ok {
+	if _, ok := auth.ThirdMap[info.GetDomain()]; !ok {
 		logger.Sugar().Error("unsupported login method")
 		return fmt.Errorf("unsupported login method")
 	}
@@ -52,6 +53,10 @@ func (s *Server) CreateThirdParty(ctx context.Context, in *npool.CreateThirdPart
 
 func (s *Server) UpdateThirdParty(ctx context.Context, in *npool.UpdateThirdPartyRequest) (*npool.UpdateThirdPartyResponse, error) {
 	err := checkThirdPartyInfo(in.GetInfo())
+	if _, err := uuid.Parse(in.GetInfo().GetID()); err != nil {
+		logger.Sugar().Errorf("invalid request app id: %v", err)
+		return &npool.UpdateThirdPartyResponse{}, status.Error(codes.Internal, err.Error())
+	}
 	if err != nil {
 		return &npool.UpdateThirdPartyResponse{}, status.Error(codes.Internal, err.Error())
 	}
