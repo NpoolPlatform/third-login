@@ -1,8 +1,6 @@
-commonLabels:
-  # app: third-login-gateway
-
 resources:
-- 01-third-login-gateway.yaml
-- 02-strip-prefix.yaml
-- 03-traefik-ingress.yaml
-- 04-traefik-vpn-ingress.yaml
+  - 01-third-login-gateway.viper.yaml
+  - 02-third-login-gateway.yaml
+  - 03-strip-prefix.yaml
+  - 04-traefik-ingress.yaml
+  - 05-traefik-vpn-ingress.yaml

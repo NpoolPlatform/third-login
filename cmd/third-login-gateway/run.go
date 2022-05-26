@@ -11,6 +11,7 @@ import (
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 
 	apimgrcli "github.com/NpoolPlatform/api-manager/pkg/client"
+
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 
 	cli "github.com/urfave/cli/v2"
@@ -41,13 +42,15 @@ var runCmd = &cli.Command{
 		}
 
 		go msglistener.Listen()
-
 		return grpc2.RunGRPCGateWay(rpcGatewayRegister)
 	},
 }
 
 func rpcRegister(server grpc.ServiceRegistrar) error {
 	api.Register(server)
+
+	apimgrcli.RegisterGRPC(server)
+
 	return nil
 }
 

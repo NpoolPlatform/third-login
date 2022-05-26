@@ -1,6 +1,12 @@
 FROM jrei/systemd-centos:7
 
-COPY ThirdLoginGateway.yaml /etc/ThirdLoginGateway/ThirdLoginGateway.yaml
-COPY third-login-gateway /usr/local/bin/third-login-gateway
+WORKDIR /app
 
-CMD ["third-login-gateway", "run"]
+COPY third-login-gateway /app
+COPY ThirdLoginGateway.viper /app
+
+ENTRYPOINT ["./third-login-gateway"]
+
+EXPOSE 50280 50281 50282
+
+CMD ["run"]

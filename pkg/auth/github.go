@@ -4,22 +4,36 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"os"
 
 	appusermgrpb "github.com/NpoolPlatform/message/npool/appusermgr"
 	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
 )
 
-var (
-	githubAuthorizeURL = "https://github.com/login/oauth/authorize"
-	githubTokenURL     = "https://github.com/login/oauth/access_token"
-	githubUserInfoURL  = "https://api.github.com/user"
-)
+type GitHubAuth struct {
+	GithubAuthorizeURL string
+	GithubTokenURL     string
+	GithubUserInfoURL  string
+}
 
-type GitHubAuth struct{}
+type GitHubUserInfoRes struct {
+	ID               int    `json:"id"`
+	Login            string `json:"login"`
+	AvatarURL        string `json:"avatar_url"`
+	Error            string `json:"error"`
+	ErrorDescription string `json:"error_description"`
+}
+
+type GitHubTokenRes struct {
+	AccessToken      string `json:"access_token"`
+	Error            string `json:"error"`
+	ErrorDescription string `json:"error_description"`
+}
 
 func (a *GitHubAuth) GetRedirectURL(config *Config) (string, error) {
-	url := NewURLBuilder(githubAuthorizeURL).
+	url := NewURLBuilder(a.GithubAuthorizeURL).
 		AddParam("response_type", "code").
 		AddParam("client_id", config.ClientID).
 		AddParam("redirect_uri", config.RedirectURL).
@@ -30,13 +44,15 @@ func (a *GitHubAuth) GetRedirectURL(config *Config) (string, error) {
 }
 
 func (a *GitHubAuth) GetAccessToken(ctx context.Context, code string, config *Config) (string, error) {
-	url := NewURLBuilder(githubTokenURL).
+	url := NewURLBuilder(a.GithubTokenURL).
 		AddParam("client_id", config.ClientID).
 		AddParam("client_secret", config.ClientSecret).
 		AddParam("code", code).
 		Build()
 	client := resty.New()
-	client.SetProxy("http://192.168.31.135:7890") // update to ENV
+	if os.Getenv("ENV_CURRENCY_REQUEST_PROXY") != "" {
+		client.SetProxy(os.Getenv("ENV_CURRENCY_REQUEST_PROXY"))
+	}
 	resp, err := client.R().
 		SetContext(ctx).
 		SetHeader("Accept", "application/json").
@@ -44,45 +60,49 @@ func (a *GitHubAuth) GetAccessToken(ctx context.Context, code string, config *Co
 	if err != nil {
 		return "", err
 	}
-	m := make(map[string]interface{})
-	err = json.Unmarshal(resp.Body(), &m)
+	gitHubRes := GitHubTokenRes{}
+	err = json.Unmarshal(resp.Body(), &gitHubRes)
 	if err != nil {
 		return "", err
 	}
-	if _, ok := m["error"]; ok {
-		return "", errors.New(m["error_description"].(string))
+	if gitHubRes.Error != "" {
+		return "", errors.New(gitHubRes.ErrorDescription)
 	}
-	return m["access_token"].(string), err
+	return gitHubRes.AccessToken, err
 }
 
-func (a *GitHubAuth) GetUserInfo(ctx context.Context, code string, config *Config) (*appusermgrpb.AppUserThird, error) {
+func (a *GitHubAuth) GetUserInfo(ctx context.Context, code string, config *Config) (*appusermgrpb.AppUserThirdParty, error) {
 	token, err := a.GetAccessToken(ctx, code, config)
 	if err != nil {
-		return &appusermgrpb.AppUserThird{}, err
+		return &appusermgrpb.AppUserThirdParty{}, err
 	}
-	url := githubUserInfoURL
+	url := a.GithubUserInfoURL
 
 	client := resty.New()
-	client.SetProxy("http://192.168.31.135:7890") // update to ENV
+	if os.Getenv("ENV_CURRENCY_REQUEST_PROXY") != "" {
+		client.SetProxy(os.Getenv("ENV_CURRENCY_REQUEST_PROXY"))
+	}
 	resp, err := client.R().
 		SetContext(ctx).
 		// batter is use Bearer
 		SetAuthToken(token).
 		Get(url)
 	if err != nil {
-		return &appusermgrpb.AppUserThird{}, err
+		return &appusermgrpb.AppUserThirdParty{}, err
 	}
-	m, err := JSONToMSS(string(resp.Body()))
+
+	gitHubRes := GitHubUserInfoRes{}
+	err = json.Unmarshal(resp.Body(), &gitHubRes)
 	if err != nil {
 		return nil, err
 	}
-	if _, ok := m["error"]; ok {
-		return &appusermgrpb.AppUserThird{}, errors.New(m["error_description"])
+	if gitHubRes.Error != "" {
+		return &appusermgrpb.AppUserThirdParty{}, errors.New(gitHubRes.ErrorDescription)
 	}
-	return &appusermgrpb.AppUserThird{
-		ThirdUserId:      m["id"],
-		ThirdUserName:    m["login"],
-		ThirdUserPicture: m["avatar_url"],
-		ThirdExtra:       string(resp.Body()),
+	return &appusermgrpb.AppUserThirdParty{
+		ThirdPartyUserID:     fmt.Sprintf("%v", gitHubRes.ID),
+		ThirdPartyUserName:   gitHubRes.Login,
+		ThirdPartyUserAvatar: gitHubRes.AvatarURL,
+		ThirdPartyID:         config.ClientID,
 	}, nil
 }

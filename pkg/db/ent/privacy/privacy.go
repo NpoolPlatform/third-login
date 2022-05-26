@@ -165,28 +165,52 @@ func DenyMutationOperationRule(op ent.Op) MutationRule {
 	return OnMutationOperation(rule, op)
 }
 
-// The ThirdAuthQueryRuleFunc type is an adapter to allow the use of ordinary
+// The AuthQueryRuleFunc type is an adapter to allow the use of ordinary
 // functions as a query rule.
-type ThirdAuthQueryRuleFunc func(context.Context, *ent.ThirdAuthQuery) error
+type AuthQueryRuleFunc func(context.Context, *ent.AuthQuery) error
 
 // EvalQuery return f(ctx, q).
-func (f ThirdAuthQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
-	if q, ok := q.(*ent.ThirdAuthQuery); ok {
+func (f AuthQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.AuthQuery); ok {
 		return f(ctx, q)
 	}
-	return Denyf("ent/privacy: unexpected query type %T, expect *ent.ThirdAuthQuery", q)
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.AuthQuery", q)
 }
 
-// The ThirdAuthMutationRuleFunc type is an adapter to allow the use of ordinary
+// The AuthMutationRuleFunc type is an adapter to allow the use of ordinary
 // functions as a mutation rule.
-type ThirdAuthMutationRuleFunc func(context.Context, *ent.ThirdAuthMutation) error
+type AuthMutationRuleFunc func(context.Context, *ent.AuthMutation) error
 
 // EvalMutation calls f(ctx, m).
-func (f ThirdAuthMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
-	if m, ok := m.(*ent.ThirdAuthMutation); ok {
+func (f AuthMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.AuthMutation); ok {
 		return f(ctx, m)
 	}
-	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.ThirdAuthMutation", m)
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.AuthMutation", m)
+}
+
+// The ThirdPartyQueryRuleFunc type is an adapter to allow the use of ordinary
+// functions as a query rule.
+type ThirdPartyQueryRuleFunc func(context.Context, *ent.ThirdPartyQuery) error
+
+// EvalQuery return f(ctx, q).
+func (f ThirdPartyQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.ThirdPartyQuery); ok {
+		return f(ctx, q)
+	}
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.ThirdPartyQuery", q)
+}
+
+// The ThirdPartyMutationRuleFunc type is an adapter to allow the use of ordinary
+// functions as a mutation rule.
+type ThirdPartyMutationRuleFunc func(context.Context, *ent.ThirdPartyMutation) error
+
+// EvalMutation calls f(ctx, m).
+func (f ThirdPartyMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.ThirdPartyMutation); ok {
+		return f(ctx, m)
+	}
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.ThirdPartyMutation", m)
 }
 
 type (
@@ -224,7 +248,9 @@ var _ QueryMutationRule = FilterFunc(nil)
 
 func queryFilter(q ent.Query) (Filter, error) {
 	switch q := q.(type) {
-	case *ent.ThirdAuthQuery:
+	case *ent.AuthQuery:
+		return q.Filter(), nil
+	case *ent.ThirdPartyQuery:
 		return q.Filter(), nil
 	default:
 		return nil, Denyf("ent/privacy: unexpected query type %T for query filter", q)
@@ -233,7 +259,9 @@ func queryFilter(q ent.Query) (Filter, error) {
 
 func mutationFilter(m ent.Mutation) (Filter, error) {
 	switch m := m.(type) {
-	case *ent.ThirdAuthMutation:
+	case *ent.AuthMutation:
+		return m.Filter(), nil
+	case *ent.ThirdPartyMutation:
 		return m.Filter(), nil
 	default:
 		return nil, Denyf("ent/privacy: unexpected mutation type %T for mutation filter", m)

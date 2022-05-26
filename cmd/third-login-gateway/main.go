@@ -1,26 +1,5 @@
 package main
 
-// import (
-//	"fmt"
-//	"io/ioutil"
-//	"log"
-//	"net/http"
-// )
-// func sayHelloHandler(w http.ResponseWriter, r *http.Request) {
-//
-//	fmt.Println("*****************Redirect*********************")
-//	http.Redirect(w, r, "http://www.baidu.com", http.StatusFound)
-//	content := []byte("hello world")
-//	err := ioutil.WriteFile("test.txt", content, 0644)
-//	if err != nil {
-//		panic(err)
-//	}
-// }
-// func main() {
-//	http.HandleFunc("/", sayHelloHandler)
-//	log.Fatal(http.ListenAndServe(":50280", nil))
-// }
-
 import (
 	"fmt"
 	"os"

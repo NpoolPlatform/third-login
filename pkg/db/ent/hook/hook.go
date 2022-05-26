@@ -9,15 +9,28 @@ import (
 	"github.com/NpoolPlatform/third-login-gateway/pkg/db/ent"
 )
 
-// The ThirdAuthFunc type is an adapter to allow the use of ordinary
-// function as ThirdAuth mutator.
-type ThirdAuthFunc func(context.Context, *ent.ThirdAuthMutation) (ent.Value, error)
+// The AuthFunc type is an adapter to allow the use of ordinary
+// function as Auth mutator.
+type AuthFunc func(context.Context, *ent.AuthMutation) (ent.Value, error)
 
 // Mutate calls f(ctx, m).
-func (f ThirdAuthFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	mv, ok := m.(*ent.ThirdAuthMutation)
+func (f AuthFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.AuthMutation)
 	if !ok {
-		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ThirdAuthMutation", m)
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AuthMutation", m)
+	}
+	return f(ctx, mv)
+}
+
+// The ThirdPartyFunc type is an adapter to allow the use of ordinary
+// function as ThirdParty mutator.
+type ThirdPartyFunc func(context.Context, *ent.ThirdPartyMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ThirdPartyFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.ThirdPartyMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ThirdPartyMutation", m)
 	}
 	return f(ctx, mv)
 }
