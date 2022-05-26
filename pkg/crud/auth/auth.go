@@ -187,6 +187,12 @@ func (s *Auth) queryFromConds(conds cruder.Conds) (*ent.AuthQuery, error) {
 				return nil, fmt.Errorf("invalid app id: %v", err)
 			}
 			stm = stm.Where(auth.AppID(id))
+		case constant.AuthFieldThirdPartyID:
+			id, err := cruder.AnyTypeUUID(v.Val)
+			if err != nil {
+				return nil, fmt.Errorf("invalid app id: %v", err)
+			}
+			stm = stm.Where(auth.ThirdPartyID(id))
 		default:
 			return nil, fmt.Errorf("invalid auth field")
 		}

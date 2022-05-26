@@ -187,9 +187,39 @@ func (s *ThirdParty) queryFromConds(conds cruder.Conds) (*ent.ThirdPartyQuery, e
 				return nil, fmt.Errorf("invalid id: %v", err)
 			}
 			stm = stm.Where(thirdparty.ID(id))
+		case constant.ThirdPartyFieldBrandName:
+			value, err := cruder.AnyTypeString(v.Val)
+			if err != nil {
+				return nil, fmt.Errorf("invalid value type: %v", err)
+			}
+			stm = stm.Where(thirdparty.BrandName(value))
 		default:
 			return nil, fmt.Errorf("invalid third party field")
 		}
 	}
 	return stm, nil
+}
+
+func (s *ThirdParty) ExistConds(ctx context.Context, conds cruder.Conds) (bool, error) {
+	var err error
+	exist := false
+
+	err = db.WithTx(ctx, s.Tx, func(_ctx context.Context) error {
+		stm, err := s.queryFromConds(conds)
+		if err != nil {
+			return fmt.Errorf("fail construct stm: %v", err)
+		}
+
+		exist, err = stm.Exist(_ctx)
+		if err != nil {
+			return fmt.Errorf("fail check third party: %v", err)
+		}
+
+		return nil
+	})
+	if err != nil {
+		return false, fmt.Errorf("fail check third party: %v", err)
+	}
+
+	return exist, nil
 }
