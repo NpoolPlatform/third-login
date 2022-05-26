@@ -70,7 +70,7 @@ func Login(ctx context.Context, code, appID, thirdPartyID string) (*appusermgrpb
 			User: &appusermgrpb.AppUser{
 				AppID: thirdUser.AppID,
 			},
-			Third: thirdUser,
+			ThirdParty: thirdUser,
 		})
 		if err != nil {
 			return nil, err

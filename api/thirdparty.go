@@ -57,12 +57,16 @@ func (s *Server) UpdateThirdParty(ctx context.Context, in *npool.UpdateThirdPart
 	if err != nil {
 		return &npool.UpdateThirdPartyResponse{}, status.Error(codes.Internal, err.Error())
 	}
-	resp, err := mw.Update(ctx, in.GetInfo())
+	schema, err := crud.New(context.Background(), nil)
+	if err != nil {
+		return &npool.UpdateThirdPartyResponse{}, status.Error(codes.Internal, err.Error())
+	}
+	info, err := schema.Update(context.Background(), in.GetInfo())
 	if err != nil {
 		return &npool.UpdateThirdPartyResponse{}, status.Error(codes.Internal, err.Error())
 	}
 	return &npool.UpdateThirdPartyResponse{
-		Info: resp,
+		Info: info,
 	}, nil
 }
 

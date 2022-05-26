@@ -89,7 +89,6 @@ func (s *ThirdParty) Update(ctx context.Context, in *npool.ThirdParty) (*npool.T
 
 	err = db.WithTx(ctx, s.Tx, func(_ctx context.Context) error {
 		info, err = s.Tx.ThirdParty.UpdateOneID(uuid.MustParse(in.GetID())).
-			SetBrandName(in.GetBrandName()).
 			SetLogo(in.GetLogo()).
 			SetDomain(in.GetDomain()).
 			Save(_ctx)

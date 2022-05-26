@@ -114,7 +114,7 @@ func (a *GoogleAuth) GetUserInfo(ctx context.Context, code string, config *Confi
 	}
 	return &appusermgrpb.AppUserThirdParty{
 		ThirdPartyUserID:     googleRes.ID,
-		ThirdPartyUserName:   googleRes.Email,
+		ThirdPartyUsername:   googleRes.Email,
 		ThirdPartyUserAvatar: googleRes.Picture,
 		ThirdPartyID:         config.ClientID,
 	}, nil
