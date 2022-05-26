@@ -21,7 +21,43 @@ spec:
     - host: api.npool.top
       http: &http_rules
         paths:
-          - path: /api/third-login-gateway
+          - path: /api/third-login-gateway/version
+            backend:
+              serviceName: third-login-gateway
+              servicePort: 50280
+          - path: /api/third-login-gateway/v1/get/auths
+            backend:
+              serviceName: third-login-gateway
+              servicePort: 50280
+          - path: /api/third-login-gateway/v1/get/app/auths
+            backend:
+              serviceName: third-login-gateway
+              servicePort: 50280
+          - path: /api/third-login-gateway/v1/create/auth
+            backend:
+              serviceName: third-login-gateway
+              servicePort: 50280
+          - path: /api/third-login-gateway/v1/create/auths
+            backend:
+              serviceName: third-login-gateway
+              servicePort: 50280
+          - path: /api/third-login-gateway/v1/create/app/auth
+            backend:
+              serviceName: third-login-gateway
+              servicePort: 50280
+          - path: /api/third-login-gateway/v1/create/app/auths
+            backend:
+              serviceName: third-login-gateway
+              servicePort: 50280
+          - path: /api/third-login-gateway/v1/create/third/party
+            backend:
+              serviceName: third-login-gateway
+              servicePort: 50280
+          - path: /api/third-login-gateway/v1/update/third/party
+            backend:
+              serviceName: third-login-gateway
+              servicePort: 50280
+          - path: /api/third-login-gateway/v1/get/third/parties
             backend:
               serviceName: third-login-gateway
               servicePort: 50280
