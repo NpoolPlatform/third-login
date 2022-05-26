@@ -1,10 +1,9 @@
-//go:build !codeanalysis
-// +build !codeanalysis
-
+//nolint:dupl
 package api
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	npool "github.com/NpoolPlatform/message/npool/thirdlogingateway"
@@ -48,27 +47,27 @@ func (s *Server) GetAppAuths(ctx context.Context, in *npool.GetAppAuthsRequest) 
 func checkAuthInfo(info *npool.Auth) error {
 	if _, err := uuid.Parse(info.GetAppID()); err != nil {
 		logger.Sugar().Errorf("invalid request app id: %v", err)
-		return status.Error(codes.Internal, err.Error())
+		return err
 	}
 
 	if _, err := uuid.Parse(info.GetThirdPartyID()); err != nil {
 		logger.Sugar().Errorf("invalid request third party id: %v", err)
-		return status.Error(codes.Internal, err.Error())
+		return err
 	}
 
 	if info.GetAppKey() == "" {
 		logger.Sugar().Error("app key is empty")
-		return status.Error(codes.Internal, "app key empty")
+		return fmt.Errorf("app key empty")
 	}
 
 	if info.GetAppSecret() == "" {
 		logger.Sugar().Error("app secret is empty")
-		return status.Error(codes.Internal, "app secret empty")
+		return fmt.Errorf("app key empty")
 	}
 
 	if info.GetRedirectURL() == "" {
 		logger.Sugar().Error("redirect url is empty")
-		return status.Error(codes.Internal, "redirect url empty")
+		return fmt.Errorf("app key empty")
 	}
 	return nil
 }
@@ -76,15 +75,15 @@ func checkAuthInfo(info *npool.Auth) error {
 func (s *Server) CreateAuth(ctx context.Context, in *npool.CreateAuthRequest) (*npool.CreateAuthResponse, error) {
 	err := checkAuthInfo(in.GetInfo())
 	if err != nil {
-		return &npool.CreateAuthResponse{}, err
+		return &npool.CreateAuthResponse{}, status.Error(codes.Internal, err.Error())
 	}
 	schema, err := crud.New(context.Background(), nil)
 	if err != nil {
-		return &npool.CreateAuthResponse{}, err
+		return &npool.CreateAuthResponse{}, status.Error(codes.Internal, err.Error())
 	}
 	info, err := schema.Create(context.Background(), in.GetInfo())
 	if err != nil {
-		return &npool.CreateAuthResponse{}, err
+		return &npool.CreateAuthResponse{}, status.Error(codes.Internal, err.Error())
 	}
 	return &npool.CreateAuthResponse{
 		Info: info,
@@ -95,16 +94,16 @@ func (s *Server) CreateAuths(ctx context.Context, in *npool.CreateAuthsRequest) 
 	for _, val := range in.GetInfos() {
 		err := checkAuthInfo(val)
 		if err != nil {
-			return &npool.CreateAuthsResponse{}, err
+			return &npool.CreateAuthsResponse{}, status.Error(codes.Internal, err.Error())
 		}
 	}
 	schema, err := crud.New(context.Background(), nil)
 	if err != nil {
-		return &npool.CreateAuthsResponse{}, err
+		return &npool.CreateAuthsResponse{}, status.Error(codes.Internal, err.Error())
 	}
 	info, err := schema.CreateBulk(context.Background(), in.GetInfos())
 	if err != nil {
-		return &npool.CreateAuthsResponse{}, err
+		return &npool.CreateAuthsResponse{}, status.Error(codes.Internal, err.Error())
 	}
 	return &npool.CreateAuthsResponse{
 		Infos: info,
@@ -114,11 +113,11 @@ func (s *Server) CreateAuths(ctx context.Context, in *npool.CreateAuthsRequest) 
 func (s *Server) CreateAppAuth(ctx context.Context, in *npool.CreateAppAuthRequest) (*npool.CreateAppAuthResponse, error) {
 	err := checkAuthInfo(in.GetInfo())
 	if err != nil {
-		return &npool.CreateAppAuthResponse{}, err
+		return &npool.CreateAppAuthResponse{}, status.Error(codes.Internal, err.Error())
 	}
 	schema, err := crud.New(context.Background(), nil)
 	if err != nil {
-		return &npool.CreateAppAuthResponse{}, err
+		return &npool.CreateAppAuthResponse{}, status.Error(codes.Internal, err.Error())
 	}
 	if _, err := uuid.Parse(in.GetTargetAppID()); err != nil {
 		logger.Sugar().Errorf("invalid request target app id: %v", err)
@@ -127,7 +126,7 @@ func (s *Server) CreateAppAuth(ctx context.Context, in *npool.CreateAppAuthReque
 	in.GetInfo().AppID = in.GetTargetAppID()
 	info, err := schema.Create(context.Background(), in.GetInfo())
 	if err != nil {
-		return &npool.CreateAppAuthResponse{}, err
+		return &npool.CreateAppAuthResponse{}, status.Error(codes.Internal, err.Error())
 	}
 	return &npool.CreateAppAuthResponse{
 		Info: info,
@@ -138,17 +137,17 @@ func (s *Server) CreateAppAuths(ctx context.Context, in *npool.CreateAppAuthsReq
 	for key, val := range in.GetInfos() {
 		err := checkAuthInfo(val)
 		if err != nil {
-			return &npool.CreateAppAuthsResponse{}, err
+			return &npool.CreateAppAuthsResponse{}, status.Error(codes.Internal, err.Error())
 		}
 		in.GetInfos()[key].AppID = in.GetTargetAppID()
 	}
 	schema, err := crud.New(context.Background(), nil)
 	if err != nil {
-		return &npool.CreateAppAuthsResponse{}, err
+		return &npool.CreateAppAuthsResponse{}, status.Error(codes.Internal, err.Error())
 	}
 	info, err := schema.CreateBulk(context.Background(), in.GetInfos())
 	if err != nil {
-		return &npool.CreateAppAuthsResponse{}, err
+		return &npool.CreateAppAuthsResponse{}, status.Error(codes.Internal, err.Error())
 	}
 	return &npool.CreateAppAuthsResponse{
 		Infos: info,

@@ -15,7 +15,7 @@ import (
 func (s *Server) Login(ctx context.Context, in *npool.LoginRequest) (*npool.LoginResponse, error) {
 	if in.GetCode() == "" {
 		logger.Sugar().Error("auth login error code is empty")
-		return nil, status.Error(codes.InvalidArgument, "code empty")
+		return &npool.LoginResponse{}, status.Error(codes.InvalidArgument, "code empty")
 	}
 
 	if _, err := uuid.Parse(in.GetThirdPartyID()); err != nil {
@@ -27,10 +27,12 @@ func (s *Server) Login(ctx context.Context, in *npool.LoginRequest) (*npool.Logi
 		logger.Sugar().Errorf("invalid request app id: %v", err)
 		return &npool.LoginResponse{}, status.Error(codes.Internal, err.Error())
 	}
-	resp, err := mw.Login(ctx, in)
+	resp, err := mw.Login(ctx, in.GetCode(), in.GetAppID(), in.GetThirdPartyID())
 	if err != nil {
 		logger.Sugar().Errorw("auth login error: %v", err)
 		return &npool.LoginResponse{}, status.Error(codes.Internal, err.Error())
 	}
-	return resp, nil
+	return &npool.LoginResponse{
+		Info: resp,
+	}, nil
 }
