@@ -8,4 +8,8 @@ const (
 	AuthFieldAppID        = "AppID"
 
 	ThirdPartyFieldBrandName = "BrandName"
+
+	ThirdPartyGithub   = "github"
+	ThirdPartyGoogle   = "google"
+	ThirdPartyFaceBook = "facebook"
 )
