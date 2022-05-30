@@ -101,7 +101,7 @@ func (a *GitHubAuth) GetUserInfo(ctx context.Context, code string, config *Confi
 	}
 	return &appusermgrpb.AppUserThirdParty{
 		ThirdPartyUserID:     fmt.Sprintf("%v", gitHubRes.ID),
-		ThirdPartyUserName:   gitHubRes.Login,
+		ThirdPartyUsername:   gitHubRes.Login,
 		ThirdPartyUserAvatar: gitHubRes.AvatarURL,
 		ThirdPartyID:         config.ClientID,
 	}, nil

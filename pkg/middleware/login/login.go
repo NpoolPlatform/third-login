@@ -70,7 +70,7 @@ func Login(ctx context.Context, code, appID, thirdPartyID string) (*appusermgrpb
 			User: &appusermgrpb.AppUser{
 				AppID: thirdUser.AppID,
 			},
-			Third: thirdUser,
+			ThirdParty: thirdUser,
 		})
 		if err != nil {
 			return nil, err
@@ -78,11 +78,10 @@ func Login(ctx context.Context, code, appID, thirdPartyID string) (*appusermgrpb
 		if user == nil {
 			return nil, fmt.Errorf("fail createa app user with third")
 		}
-		thirdUser.ID = user.GetID()
+		tUser.UserID = user.GetID()
 	}
-
 	userInfo, err := grpc2.GetAppUserInfo(ctx, &appusermgrpb.GetAppUserInfoRequest{
-		ID: thirdUser.ID,
+		ID: tUser.GetUserID(),
 	})
 	if err != nil {
 		return nil, err

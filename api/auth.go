@@ -15,7 +15,7 @@ import (
 )
 
 func (s *Server) GetAuths(ctx context.Context, in *npool.GetAuthsRequest) (*npool.GetAuthsResponse, error) {
-	if _, err := uuid.Parse(in.AppID); err != nil {
+	if _, err := uuid.Parse(in.GetAppID()); err != nil {
 		logger.Sugar().Errorf("invalid request app id: %v", err)
 		return &npool.GetAuthsResponse{}, status.Error(codes.Internal, err.Error())
 	}

@@ -119,7 +119,7 @@ func (a *FaceBookAuth) GetUserInfo(ctx context.Context, code string, config *Con
 	}
 	return &appusermgrpb.AppUserThirdParty{
 		ThirdPartyUserID:     faceBookRes.ID,
-		ThirdPartyUserName:   faceBookRes.Name,
+		ThirdPartyUsername:   faceBookRes.Name,
 		ThirdPartyUserAvatar: faceBookRes.Picture.Date.URL,
 		ThirdPartyID:         config.ClientID,
 	}, nil
