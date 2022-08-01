@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"os"
 
-	appusermgrpb "github.com/NpoolPlatform/message/npool/appusermgr"
+	appusermgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v1"
 	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
 )

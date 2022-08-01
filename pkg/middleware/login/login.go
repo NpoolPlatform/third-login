@@ -6,7 +6,7 @@ import (
 
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
-	appusermgrpb "github.com/NpoolPlatform/message/npool/appusermgr"
+	appusermgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v1"
 	oauth "github.com/NpoolPlatform/third-login-gateway/pkg/auth"
 	constant "github.com/NpoolPlatform/third-login-gateway/pkg/const"
 	authcrud "github.com/NpoolPlatform/third-login-gateway/pkg/crud/auth"
