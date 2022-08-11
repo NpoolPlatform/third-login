@@ -68,8 +68,8 @@ github.com/Masterminds/sprig v2.22.0+incompatible/go.mod h1:y6hNFY5UBTIWBxnzTeuN
 github.com/NpoolPlatform/api-manager v0.0.0-20220121051827-18c807c114dc/go.mod h1:ubnvHuhc0o6drhdYrT+nM5DXZW/yEesObWky6oRsHoQ=
 github.com/NpoolPlatform/api-manager v0.0.0-20220505084652-c0caff45e937 h1:RibIKSGVxsUAIFG8REq5dgwDTFloFV2ko09fjvx3/mw=
 github.com/NpoolPlatform/api-manager v0.0.0-20220505084652-c0caff45e937/go.mod h1:ubnvHuhc0o6drhdYrT+nM5DXZW/yEesObWky6oRsHoQ=
-github.com/NpoolPlatform/appuser-manager v0.0.0-20220527065918-ae665381c193 h1:82qWkJQ0przlehp/J2htvfo4p40zt+wpEzBC++01DGc=
-github.com/NpoolPlatform/appuser-manager v0.0.0-20220527065918-ae665381c193/go.mod h1:cUNA0jlsqF1hWoi/eF6Znl+b4NCSzym2BByfqe/HApM=
+github.com/NpoolPlatform/appuser-manager v0.0.0-20220503155754-feb61d1897e0 h1:H4inJCD80tjHOF2aU4EKdWYPE1HLjY8rei30cqRVdXQ=
+github.com/NpoolPlatform/appuser-manager v0.0.0-20220503155754-feb61d1897e0/go.mod h1:t0WHRMNnYyZwzqxveh6oPn6DqzG8K6eL4lIG5kzna8U=
 github.com/NpoolPlatform/go-service-framework v0.0.0-20220120091626-4e8035637592/go.mod h1:JqrktA7gNQe/Uprnr6DCs5UCFpheCZ30lDd0OkyRtC4=
 github.com/NpoolPlatform/go-service-framework v0.0.0-20220404143809-82c40930388a h1:bOI01dIwb2Okkc9tmuzBzxUfI/EtWN4ziQHPUT25BYI=
 github.com/NpoolPlatform/go-service-framework v0.0.0-20220404143809-82c40930388a/go.mod h1:G5SKpcIWWkyxeNtgI8c0iY8py6DY2xHZFGKPJpTEon0=
