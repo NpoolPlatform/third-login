@@ -8,7 +8,7 @@ import (
 	appusermgrconst "github.com/NpoolPlatform/appuser-manager/pkg/message/const"
 	grpc2 "github.com/NpoolPlatform/go-service-framework/pkg/grpc"
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
-	appusermgrpb "github.com/NpoolPlatform/message/npool/appusermgr"
+	appusermgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v1"
 )
 
 const (

@@ -8,14 +8,14 @@ require (
 	github.com/NpoolPlatform/appuser-manager v0.0.0-20220503155754-feb61d1897e0
 	github.com/NpoolPlatform/go-service-framework v0.0.0-20220404143809-82c40930388a
 	github.com/NpoolPlatform/libent-cruder v0.0.0-20220503164840-0962cb617722
-	github.com/NpoolPlatform/message v0.0.0-20220520115554-2c9bbb3dbe95
+	github.com/NpoolPlatform/message v0.0.0-20220811055003-c46a227689fb
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/google/uuid v1.3.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.10.0
 	github.com/streadway/amqp v1.0.0
 	github.com/stretchr/testify v1.7.1
 	github.com/urfave/cli/v2 v2.5.1
-	google.golang.org/grpc v1.46.2
+	google.golang.org/grpc v1.48.0
 	google.golang.org/protobuf v1.28.0
 )
 
@@ -88,7 +88,7 @@ require (
 	go.uber.org/zap v1.19.1 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220106191415-9b9b3d81d5e3 // indirect
 	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd // indirect
-	golang.org/x/sys v0.0.0-20220209214540-3681064d5158 // indirect
+	golang.org/x/sys v0.0.0-20220615213510-4f61da869c0c // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/xerrors v0.0.0-20220411194840-2f41105eb62f // indirect
 	google.golang.org/genproto v0.0.0-20220317150908-0efb43f6373e // indirect
@@ -99,8 +99,3 @@ require (
 )
 
 replace google.golang.org/grpc => github.com/grpc/grpc-go v1.41.0
-
-replace (
-	github.com/NpoolPlatform/appuser-manager => github.com/NpoolPlatform/appuser-manager v0.0.0-20220527065918-ae665381c193
-	github.com/NpoolPlatform/message => github.com/NpoolPlatform/message v0.0.0-20220526153026-955aeb84dc8c
-)

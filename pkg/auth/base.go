@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	appusermgrpb "github.com/NpoolPlatform/message/npool/appusermgr"
+	appusermgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v1"
 	thirdlogingawconst "github.com/NpoolPlatform/third-login-gateway/pkg/const"
 )
 
