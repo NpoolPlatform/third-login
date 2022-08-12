@@ -3,9 +3,6 @@ package main
 import (
 	"github.com/NpoolPlatform/third-login-gateway/api"
 	db "github.com/NpoolPlatform/third-login-gateway/pkg/db"
-	msgcli "github.com/NpoolPlatform/third-login-gateway/pkg/message/client"
-	msglistener "github.com/NpoolPlatform/third-login-gateway/pkg/message/listener"
-	msgsrv "github.com/NpoolPlatform/third-login-gateway/pkg/message/server"
 
 	grpc2 "github.com/NpoolPlatform/go-service-framework/pkg/grpc"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
@@ -34,14 +31,6 @@ var runCmd = &cli.Command{
 			}
 		}()
 
-		if err := msgsrv.Init(); err != nil {
-			return err
-		}
-		if err := msgcli.Init(); err != nil {
-			return err
-		}
-
-		go msglistener.Listen()
 		return grpc2.RunGRPCGateWay(rpcGatewayRegister)
 	},
 }
